@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberBase — مرجع سيبراني شامل</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Cairo:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#030712;--bg2:#060e1e;--bg3:#0a1228;
+  --s1:#0f1a2e;--s2:#141f35;
+  --b1:#1a2d4a;--b2:#1e3457;
+  --cyan:#00d4ff;--blue:#0077ee;--purple:#8b5cf6;--p2:#a78bfa;
+  --green:#10b981;--red:#f43f5e;--yellow:#f59e0b;
+  --t1:#e2e8f0;--t2:#94a3b8;--t3:#475569;
+}
+html{scroll-behavior:smooth}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+/* CANVAS */
+#cv{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}
+.grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);
+  background-size:56px 56px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;background:rgba(3,7,18,.9);backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(0,212,255,.1);padding:0 32px}
+.nav-i{max-width:1360px;margin:0 auto;display:flex;align-items:center;height:62px;gap:20px}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none}
+.logo-box{width:34px;height:34px;background:linear-gradient(135deg,var(--cyan),var(--blue));
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#000;
+  box-shadow:0 0 18px rgba(0,212,255,.3)}
+.logo-name{font-family:'Cairo',sans-serif;font-size:19px;font-weight:700}
+.logo-name .cy{background:linear-gradient(135deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-tag{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;letter-spacing:2px;margin-top:-2px}
+.nav-links{display:flex;gap:2px;margin-right:auto}
+.nl{padding:7px 14px;border-radius:8px;font-size:13px;color:var(--t2);cursor:pointer;
+  transition:all .2s;border:1px solid transparent;font-weight:500}
+.nl:hover,.nl.act{background:var(--s1);border-color:var(--b1);color:var(--cyan)}
+.ai-nav{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;
+  background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);
+  color:var(--cyan);font-size:13px;cursor:pointer;transition:all .2s;font-weight:500}
+.ai-nav:hover{background:rgba(0,212,255,.15);box-shadow:0 0 18px rgba(0,212,255,.15)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pu 2s infinite}
+@keyframes pu{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
+
+/* PAGES */
+.pg{display:none;min-height:calc(100vh - 62px);position:relative;z-index:1}
+.pg.on{display:block}
+.wrap{max-width:1360px;margin:0 auto;padding:0 32px}
+
+/* ═══ HOME ═══ */
+.hero{padding:72px 0 52px;text-align:center}
+.h-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 16px;border-radius:20px;
+  background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.18);
+  font-size:11px;color:var(--cyan);font-family:'JetBrains Mono',monospace;
+  letter-spacing:2px;margin-bottom:24px}
+.h-dot{width:5px;height:5px;border-radius:50%;background:var(--cyan);animation:pu 1.5s infinite}
+.h-title{font-family:'Cairo',sans-serif;font-size:clamp(32px,5vw,60px);font-weight:900;
+  line-height:1.18;margin-bottom:16px}
+.h-title .g{background:linear-gradient(135deg,var(--cyan),var(--blue),var(--p2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.h-sub{font-size:16px;color:var(--t2);max-width:560px;margin:0 auto 40px;line-height:1.8}
+
+/* SEARCH */
+.srch-wrap{max-width:640px;margin:0 auto 52px;position:relative}
+.srch-box{display:flex;align-items:center;gap:0;background:var(--s1);
+  border:1px solid var(--b2);border-radius:14px;overflow:hidden;
+  transition:all .3s}
+.srch-box:focus-within{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.srch-icon{padding:0 16px;color:var(--t3);font-size:18px;flex-shrink:0}
+.srch-inp{flex:1;padding:15px 0;background:transparent;border:none;outline:none;
+  color:var(--t1);font-size:15px;font-family:'IBM Plex Sans Arabic',sans-serif;direction:rtl}
+.srch-inp::placeholder{color:var(--t3)}
+.srch-ai{padding:8px 14px;margin:7px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(167,139,250,.15));
+  border:1px solid rgba(139,92,246,.3);font-size:11px;color:var(--p2);
+  font-family:'JetBrains Mono',monospace;cursor:pointer;white-space:nowrap}
+.srch-drop{position:absolute;top:calc(100% + 8px);inset-inline:0;
+  background:var(--s2);border:1px solid var(--b2);border-radius:12px;
+  overflow:hidden;display:none;z-index:100;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.srch-drop.show{display:block}
+.sd-item{display:flex;align-items:center;gap:12px;padding:12px 16px;
+  cursor:pointer;border-bottom:1px solid var(--b1);transition:background .15s}
+.sd-item:last-child{border-bottom:none}
+.sd-item:hover{background:var(--s1)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:56px}
+.stat{background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+  padding:20px;text-align:center;transition:all .25s;cursor:pointer}
+.stat:hover{border-color:rgba(0,212,255,.3);transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(0,212,255,.08)}
+.sn{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.sl{font-size:12px;color:var(--t2)}
+.st{font-size:11px;color:var(--green);margin-top:4px;font-family:'JetBrains Mono',monospace}
+
+/* DAILY */
+.daily{background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(139,92,246,.06));
+  border:1px solid rgba(0,212,255,.18);border-radius:16px;padding:28px;
+  margin-bottom:48px;position:relative;overflow:hidden}
+.daily::after{content:'';position:absolute;top:-40px;left:-40px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(0,212,255,.06),transparent 70%);pointer-events:none}
+.d-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);
+  letter-spacing:2px;margin-bottom:10px}
+.d-term{font-family:'Cairo',sans-serif;font-size:24px;font-weight:700;margin-bottom:6px}
+.d-term span{color:var(--cyan)}
+.d-def{font-size:14px;color:var(--t2);line-height:1.85;max-width:680px}
+.d-btns{display:flex;gap:10px;margin-top:18px}
+.btn{padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;
+  transition:all .2s;border:1px solid;font-weight:500;font-family:'IBM Plex Sans Arabic',sans-serif}
+.btn-p{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.btn-p:hover{background:rgba(0,212,255,.2);box-shadow:0 0 18px rgba(0,212,255,.2)}
+.btn-s{background:transparent;border-color:var(--b2);color:var(--t2)}
+.btn-s:hover{border-color:var(--b1);color:var(--t1)}
+
+/* SECTION */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.sec-t{font-family:'Cairo',sans-serif;font-size:18px;font-weight:700;
+  display:flex;align-items:center;gap:10px}
+.sec-t::before{content:'';width:3px;height:18px;
+  background:linear-gradient(var(--cyan),var(--blue));border-radius:2px}
+.sec-lnk{font-size:13px;color:var(--t3);cursor:pointer;transition:color .2s}
+.sec-lnk:hover{color:var(--cyan)}
+
+/* CATS */
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:48px}
+.cat{background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+  padding:16px;cursor:pointer;transition:all .25s}
+.cat:hover{transform:translateY(-3px)}
+.cat-ic{font-size:22px;margin-bottom:10px}
+.cat-nm{font-size:13px;font-weight:600}
+.cat-ct{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:3px}
+.c-soc:hover{border-color:rgba(0,212,255,.4);box-shadow:0 8px 28px rgba(0,212,255,.1)}
+.c-grc:hover{border-color:rgba(16,185,129,.4);box-shadow:0 8px 28px rgba(16,185,129,.1)}
+.c-mal:hover{border-color:rgba(244,63,94,.4);box-shadow:0 8px 28px rgba(244,63,94,.1)}
+.c-iam:hover{border-color:rgba(139,92,246,.4);box-shadow:0 8px 28px rgba(139,92,246,.1)}
+.c-net:hover{border-color:rgba(0,119,238,.4);box-shadow:0 8px 28px rgba(0,119,238,.1)}
+.c-cld:hover{border-color:rgba(245,158,11,.4);box-shadow:0 8px 28px rgba(245,158,11,.1)}
+
+/* TERM CARDS */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:48px}
+.tc{background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+  padding:18px;cursor:pointer;transition:all .25s}
+.tc:hover{border-color:var(--b2);transform:translateY(-2px);
+  box-shadow:0 8px 28px rgba(0,0,0,.3)}
+.tc-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.tc-nm{font-size:14px;font-weight:600}
+.tc-df{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:10px}
+.tc-ft{display:flex;align-items:center;justify-content:space-between}
+.lvl{display:flex;gap:3px}
+.ld{width:6px;height:6px;border-radius:50%}
+
+/* BADGES */
+.badge{padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;
+  font-family:'JetBrains Mono',monospace}
+.b-soc{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}
+.b-grc{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.b-mal{background:rgba(244,63,94,.1);color:var(--red);border:1px solid rgba(244,63,94,.2)}
+.b-iam{background:rgba(139,92,246,.1);color:var(--p2);border:1px solid rgba(139,92,246,.2)}
+.b-net{background:rgba(0,119,238,.1);color:#60a5fa;border:1px solid rgba(0,119,238,.2)}
+.b-cld{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
+
+/* ═══ TERMS PAGE ═══ */
+.tpage{padding:40px 0}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.chips-row{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.chip{padding:6px 14px;border-radius:20px;border:1px solid var(--b1);
+  background:var(--s1);color:var(--t2);font-size:12px;cursor:pointer;
+  transition:all .2s;font-weight:500}
+.chip.on,.chip:hover{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.tcount{font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.tlist{display:flex;flex-direction:column;gap:9px}
+.trow{background:var(--s1);border:1px solid var(--b1);border-radius:12px;
+  padding:16px 20px;display:grid;grid-template-columns:1fr 3fr auto;
+  gap:20px;align-items:center;cursor:pointer;transition:all .2s}
+.trow:hover{border-color:var(--b2);transform:translateX(4px)}
+.tr-ab{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--cyan)}
+.tr-nm{font-size:14px;font-weight:600;margin-bottom:3px}
+.tr-df{font-size:12px;color:var(--t2)}
+.tr-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.pages{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:26px}
+.pb{width:32px;height:32px;border-radius:8px;border:1px solid var(--b1);
+  background:var(--s1);color:var(--t2);font-size:12px;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace}
+.pb.on,.pb:hover{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3);color:var(--cyan)}
+
+/* ═══ DETAIL ═══ */
+.dpage{padding:40px 0}
+.back{display:inline-flex;align-items:center;gap:7px;color:var(--t3);
+  font-size:13px;cursor:pointer;margin-bottom:22px;transition:color .2s}
+.back:hover{color:var(--cyan)}
+.dhead{background:var(--s1);border:1px solid var(--b1);border-radius:16px;
+  padding:28px;margin-bottom:18px;position:relative;overflow:hidden}
+.dhead::before{content:'';position:absolute;top:0;left:0;width:220px;height:220px;
+  background:radial-gradient(circle at top left,rgba(0,212,255,.05),transparent 65%)}
+.d-ab{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);
+  letter-spacing:2px;margin-bottom:8px}
+.d-tt{font-family:'Cairo',sans-serif;font-size:30px;font-weight:700;margin-bottom:5px}
+.d-en{font-size:15px;color:var(--t2);margin-bottom:14px;font-style:italic}
+.d-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.d-acts{display:flex;gap:8px;padding-top:16px;border-top:1px solid var(--b1);flex-wrap:wrap}
+.d-btn{padding:7px 14px;border-radius:8px;background:var(--bg2);border:1px solid var(--b1);
+  color:var(--t2);font-size:12px;cursor:pointer;transition:all .2s;
+  font-family:'IBM Plex Sans Arabic',sans-serif}
+.d-btn:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.dgrid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.dcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;
+  padding:20px;margin-bottom:14px}
+.dc-t{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--t3);
+  font-family:'JetBrains Mono',monospace;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px}
+.dc-t::after{content:'';flex:1;height:1px;background:var(--b1)}
+.def-s{font-size:15px;line-height:1.85;color:var(--t1);margin-bottom:14px}
+.def-t{font-size:12px;line-height:1.8;color:var(--t2);background:var(--bg3);
+  border-radius:8px;padding:14px;border-right:2px solid var(--cyan);
+  font-family:'JetBrains Mono',monospace}
+.ex{background:var(--bg2);border:1px solid var(--b1);border-radius:10px;
+  padding:14px;margin-top:12px}
+.ex-l{font-size:11px;color:var(--yellow);font-family:'JetBrains Mono',monospace;
+  letter-spacing:1px;margin-bottom:7px}
+.ex-t{font-size:13px;color:var(--t2);line-height:1.75}
+.diff-bar{display:flex;gap:4px;margin-bottom:10px}
+.ds{flex:1;height:4px;border-radius:2px}
+.rel-item{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--b1);
+  cursor:pointer;transition:all .2s;margin-bottom:6px;font-size:13px}
+.rel-item:hover{border-color:rgba(0,212,255,.3);transform:translateX(-3px)}
+.notes{width:100%;background:var(--bg3);border:1px solid var(--b1);border-radius:10px;
+  padding:12px;color:var(--t1);font-family:'IBM Plex Sans Arabic',sans-serif;
+  font-size:13px;min-height:110px;outline:none;resize:vertical;
+  transition:border-color .2s;direction:rtl}
+.notes:focus{border-color:rgba(0,212,255,.3)}
+
+/* ═══ AI PAGE ═══ */
+.aipage{display:flex;flex-direction:column;height:calc(100vh - 62px)}
+.ai-hd{padding:20px 0 16px;text-align:center;border-bottom:1px solid var(--b1)}
+.ai-t{font-family:'Cairo',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
+.ai-s{font-size:13px;color:var(--t2)}
+.ai-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;
+  border-radius:20px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);
+  font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;margin-top:8px}
+.chat{flex:1;overflow-y:auto;padding:20px 32px;display:flex;flex-direction:column;
+  gap:14px;max-width:840px;width:100%;margin:0 auto;align-self:center;
+  width:100%}
+.msg{display:flex;gap:10px;animation:mi .3s ease}
+@keyframes mi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.u{flex-direction:row-reverse}
+.av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;font-size:11px;font-weight:700;
+  font-family:'JetBrains Mono',monospace}
+.av.ai{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#000}
+.av.u{background:var(--s2);border:1px solid var(--b2);color:var(--t2)}
+.bub{max-width:74%;padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.78}
+.msg.ai .bub{background:var(--s1);border:1px solid var(--b1);color:var(--t1);
+  border-radius:4px 12px 12px 12px}
+.msg.u .bub{background:linear-gradient(135deg,rgba(0,119,238,.22),rgba(0,212,255,.15));
+  border:1px solid rgba(0,212,255,.22);color:var(--t1);border-radius:12px 4px 12px 12px}
+.ty{display:flex;gap:4px;padding:4px 0}
+.ty span{width:6px;height:6px;border-radius:50%;background:var(--t3);animation:ty 1.2s infinite}
+.ty span:nth-child(2){animation-delay:.2s}.ty span:nth-child(3){animation-delay:.4s}
+@keyframes ty{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+.prompt-chips{display:flex;gap:7px;flex-wrap:wrap;padding:8px 32px 10px;
+  max-width:840px;width:100%;margin:0 auto;align-self:center;width:100%}
+.pchip{padding:6px 14px;border-radius:20px;background:var(--s1);border:1px solid var(--b1);
+  color:var(--t2);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.pchip:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.cinp-row{padding:12px 32px 18px;border-top:1px solid var(--b1);
+  max-width:840px;width:100%;margin:0 auto;align-self:center;width:100%}
+.cinp-inner{display:flex;gap:9px;align-items:flex-end}
+.cinp{flex:1;background:var(--s1);border:1px solid var(--b2);border-radius:12px;
+  padding:12px 16px;color:var(--t1);font-family:'IBM Plex Sans Arabic',sans-serif;
+  font-size:14px;outline:none;resize:none;max-height:120px;
+  transition:border-color .2s;direction:rtl;min-height:46px}
+.cinp:focus{border-color:rgba(0,212,255,.4);box-shadow:0 0 0 3px rgba(0,212,255,.07)}
+.send{width:46px;height:46px;border-radius:10px;
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  border:none;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:all .2s;flex-shrink:0;font-size:18px;color:#000}
+.send:hover{opacity:.85;transform:scale(1.05)}
+
+/* ═══ ADMIN ═══ */
+.apage{padding:36px 0}
+.admgrid{display:grid;grid-template-columns:220px 1fr;gap:18px}
+.aside{background:var(--s1);border:1px solid var(--b1);border-radius:14px;
+  padding:14px;height:fit-content}
+.asi{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;
+  cursor:pointer;transition:all .2s;font-size:13px;color:var(--t2);margin-bottom:3px}
+.asi:hover,.asi.on{background:rgba(0,212,255,.08);color:var(--cyan);border-right:2px solid var(--cyan)}
+.a4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.as{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px}
+.as-n{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;margin-bottom:4px}
+.as-l{font-size:12px;color:var(--t2)}
+.as-ch{font-size:11px;margin-top:5px;font-family:'JetBrains Mono',monospace}
+.chart-box{background:var(--s1);border:1px solid var(--b1);border-radius:14px;
+  padding:18px;margin-bottom:16px}
+.bars{display:flex;align-items:flex-end;gap:5px;height:75px;margin-top:14px}
+.bar{flex:1;border-radius:3px 3px 0 0;background:var(--cyan);cursor:pointer;
+  position:relative;transition:opacity .2s}
+.bar:hover{opacity:1 !important}
+.bar:hover::after{content:attr(data-v);position:absolute;top:-22px;left:50%;
+  transform:translateX(-50%);font-size:10px;color:var(--t2);
+  font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.top-box{background:var(--s1);border:1px solid var(--b1);border-radius:14px;
+  padding:18px;margin-bottom:16px}
+.toprow{display:flex;align-items:center;gap:12px;padding:9px 0;
+  border-bottom:1px solid var(--b1)}
+.toprow:last-child{border-bottom:none}
+.top-rk{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);width:18px}
+.top-nm{flex:1;font-size:14px;font-weight:500}
+.top-bw{width:110px;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.top-bf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.top-ct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);width:48px;text-align:left}
+.fbox{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:22px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ff{display:flex;flex-direction:column;gap:5px}
+.ff.full{grid-column:1/-1}
+.flbl{font-size:12px;color:var(--t2);font-weight:500}
+.finp{background:var(--bg3);border:1px solid var(--b1);border-radius:8px;
+  padding:9px 13px;color:var(--t1);font-family:'IBM Plex Sans Arabic',sans-serif;
+  font-size:13px;outline:none;transition:border-color .2s;direction:rtl;width:100%}
+.finp:focus{border-color:rgba(0,212,255,.4)}
+.fta{min-height:74px;resize:vertical}
+.sub-btn{padding:9px 22px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,119,238,.12));
+  border:1px solid rgba(0,212,255,.3);color:var(--cyan);
+  font-size:13px;cursor:pointer;transition:all .2s;font-weight:600;
+  font-family:'IBM Plex Sans Arabic',sans-serif}
+.sub-btn:hover{background:linear-gradient(135deg,rgba(0,212,255,.25),rgba(0,119,238,.2));
+  box-shadow:0 0 18px rgba(0,212,255,.2)}
+
+@media(max-width:960px){
+  .cats{grid-template-columns:repeat(3,1fr)}
+  .tgrid{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .dgrid{grid-template-columns:1fr}
+  .admgrid{grid-template-columns:1fr}
+  .a4{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  nav{padding:0 16px}
+  .wrap{padding:0 16px}
+  .cats{grid-template-columns:repeat(2,1fr)}
+  .tgrid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .trow{grid-template-columns:1fr auto}
+  .tr-ab{display:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+<div class="grid"></div>
+
+<!-- NAV -->
+<nav>
+<div class="nav-i">
+  <div class="logo" onclick="go('home')">
+    <div class="logo-box">CY</div>
+    <div>
+      <div class="logo-name"><span class="cy">Cyber</span>Base</div>
+      <div class="logo-tag">v2.4 ENTERPRISE</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <div class="nl act" onclick="go('home');na(this)">الرئيسية</div>
+    <div class="nl" onclick="go('terms');na(this)">المصطلحات</div>
+    <div class="nl" onclick="go('ai');na(this)">AI Assistant</div>
+    <div class="nl" onclick="go('admin');na(this)">لوحة التحكم</div>
+  </div>
+  <div class="ai-nav" onclick="go('ai');na(document.querySelectorAll('.nl')[2])">
+    <span class="pulse"></span>CyberBase AI
+  </div>
+</div>
+</nav>
+
+<!-- ══ HOME ══ -->
+<div id="pg-home" class="pg on">
+<div class="wrap">
+<div class="hero">
+  <div class="h-badge"><span class="h-dot"></span>مرجع سيبراني شامل — 2025</div>
+  <h1 class="h-title">قاعدة المعرفة <span class="g">السيبرانية</span><br>الأشمل عربياً</h1>
+  <p class="h-sub">أكثر من ١٢٠٠ مصطلح سيبراني موثق مع شرح مبسط وتقني وذكاء اصطناعي مدمج</p>
+  <div class="srch-wrap">
+    <div class="srch-box">
+      <span class="srch-icon">🔍</span>
+      <input class="srch-inp" id="srch" placeholder="ابحث: SIEM, Zero Trust, APT, Phishing..." oninput="lsearch(this.value)" autocomplete="off">
+      <div class="srch-ai">✦ AI</div>
+    </div>
+    <div class="srch-drop" id="sdrop"></div>
+  </div>
+</div>
+
+<div class="daily">
+  <div class="d-lbl">◈ مصطلح اليوم</div>
+  <div class="d-term">Zero Trust Architecture <span>· معمارية الثقة الصفرية</span></div>
+  <div class="d-def">نموذج أمني يفترض أن التهديد قد يكون داخل الشبكة أو خارجها، لذا يتطلب التحقق المستمر من كل مستخدم وجهاز وطلب وصول بدلاً من الثقة العمياء.</div>
+  <div class="d-btns">
+    <button class="btn btn-p" onclick="detail('zt')">قراءة التفاصيل الكاملة</button>
+    <button class="btn btn-s" onclick="go('terms');na(document.querySelectorAll('.nl')[1])">تصفح المزيد</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="sn" id="s1">0</div><div class="sl">مصطلح موثق</div><div class="st">↑ +48 هذا الشهر</div></div>
+  <div class="stat"><div class="sn" id="s2">0</div><div class="sl">تصنيف متخصص</div><div class="st">↑ +3 جديد</div></div>
+  <div class="stat"><div class="sn" id="s3">0</div><div class="sl">مستخدم نشط</div><div class="st">↑ +12% الأسبوع</div></div>
+  <div class="stat"><div class="sn" id="s4">0</div><div class="sl">بحث يومي</div><div class="st">↑ متوسط اليوم</div></div>
+</div>
+
+<div class="sec-hd">
+  <div class="sec-t">التصنيفات التخصصية</div>
+  <div class="sec-lnk" onclick="go('terms');na(document.querySelectorAll('.nl')[1])">عرض الكل ←</div>
+</div>
+<div class="cats">
+  <div class="cat c-soc" onclick="gofilt('SOC')"><div class="cat-ic">🛡️</div><div class="cat-nm">SOC & SIEM</div><div class="cat-ct">142 مصطلح</div></div>
+  <div class="cat c-grc" onclick="gofilt('GRC')"><div class="cat-ic">⚖️</div><div class="cat-nm">GRC & Compliance</div><div class="cat-ct">98 مصطلح</div></div>
+  <div class="cat c-mal" onclick="gofilt('Malware')"><div class="cat-ic">🦠</div><div class="cat-nm">Malware & Threats</div><div class="cat-ct">115 مصطلح</div></div>
+  <div class="cat c-iam" onclick="gofilt('IAM')"><div class="cat-ic">🔑</div><div class="cat-nm">IAM & Identity</div><div class="cat-ct">76 مصطلح</div></div>
+  <div class="cat c-net" onclick="gofilt('Network')"><div class="cat-ic">🌐</div><div class="cat-nm">Networking</div><div class="cat-ct">187 مصطلح</div></div>
+  <div class="cat c-cld" onclick="gofilt('Cloud')"><div class="cat-ic">☁️</div><div class="cat-nm">Cloud Security</div><div class="cat-ct">93 مصطلح</div></div>
+  <div class="cat c-soc" onclick="gofilt('SOC')"><div class="cat-ic">🎯</div><div class="cat-nm">Threat Intelligence</div><div class="cat-ct">64 مصطلح</div></div>
+  <div class="cat c-grc" onclick="gofilt('Crypto')"><div class="cat-ic">🔐</div><div class="cat-nm">Cryptography</div><div class="cat-ct">81 مصطلح</div></div>
+</div>
+
+<div class="sec-hd">
+  <div class="sec-t">أحدث المصطلحات</div>
+  <div class="sec-lnk" onclick="go('terms');na(document.querySelectorAll('.nl')[1])">عرض الكل ←</div>
+</div>
+<div class="tgrid" id="hgrid"></div>
+</div>
+</div>
+
+<!-- ══ TERMS ══ -->
+<div id="pg-terms" class="pg">
+<div class="wrap tpage">
+  <div class="toolbar">
+    <div class="chips-row" id="fchips">
+      <div class="chip on" onclick="filt('all',this)">الكل</div>
+      <div class="chip" onclick="filt('SOC',this)">SOC</div>
+      <div class="chip" onclick="filt('GRC',this)">GRC</div>
+      <div class="chip" onclick="filt('Malware',this)">Malware</div>
+      <div class="chip" onclick="filt('IAM',this)">IAM</div>
+      <div class="chip" onclick="filt('Network',this)">Network</div>
+      <div class="chip" onclick="filt('Cloud',this)">Cloud</div>
+      <div class="chip" onclick="filt('Crypto',this)">Crypto</div>
+    </div>
+    <div class="tcount" id="tcount">عرض ٨ من ١٢٠٠</div>
+  </div>
+  <div class="tlist" id="tlist"></div>
+  <div class="pages">
+    <div class="pb on">1</div><div class="pb">2</div><div class="pb">3</div>
+    <div class="pb">···</div><div class="pb">50</div><div class="pb">→</div>
+  </div>
+</div>
+</div>
+
+<!-- ══ DETAIL ══ -->
+<div id="pg-detail" class="pg">
+<div class="wrap dpage">
+  <div class="back" onclick="go('terms');na(document.querySelectorAll('.nl')[1])">← العودة إلى المصطلحات</div>
+  <div id="dbody"></div>
+</div>
+</div>
+
+<!-- ══ AI ══ -->
+<div id="pg-ai" class="pg" style="padding:0">
+<div class="aipage">
+  <div class="ai-hd">
+    <div class="ai-t">CyberBase AI Assistant</div>
+    <div class="ai-s">مساعد ذكاء اصطناعي متخصص في الأمن السيبراني</div>
+    <div class="ai-pill"><span class="pulse"></span>متصل · claude-sonnet</div>
+  </div>
+  <div class="chat" id="chat">
+    <div class="msg ai">
+      <div class="av ai">CY</div>
+      <div class="bub">مرحباً! أنا مساعد CyberBase الذكي 🛡️<br>اسألني عن أي مصطلح سيبراني، اختصار، أو مفهوم تقني وسأشرحه لك بشكل مبسط وتقني مع أمثلة عملية.</div>
+    </div>
+  </div>
+  <div class="prompt-chips" id="pchips">
+    <div class="pchip" onclick="sq(this.textContent)">ما هو SIEM؟</div>
+    <div class="pchip" onclick="sq(this.textContent)">اشرح Zero Trust</div>
+    <div class="pchip" onclick="sq(this.textContent)">فرق IDS و IPS</div>
+    <div class="pchip" onclick="sq(this.textContent)">أنواع Malware</div>
+    <div class="pchip" onclick="sq(this.textContent)">ما هو مفهوم SOC؟</div>
+    <div class="pchip" onclick="sq(this.textContent)">اشرح Ransomware</div>
+  </div>
+  <div class="cinp-row">
+    <div class="cinp-inner">
+      <textarea class="cinp" id="cinp" placeholder="اسأل عن أي مصطلح سيبراني..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+      <button class="send" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ ADMIN ══ -->
+<div id="pg-admin" class="pg">
+<div class="wrap apage">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+      <div style="font-family:'Cairo',sans-serif;font-size:22px;font-weight:700">لوحة التحكم</div>
+      <div style="font-size:13px;color:var(--t2)">CyberBase Enterprise · مرحباً بك</div>
+    </div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-s" style="font-size:12px">📊 تصدير</button>
+      <button class="btn btn-p" style="font-size:12px" onclick="document.getElementById('addForm').scrollIntoView({behavior:'smooth'})">+ إضافة مصطلح</button>
+    </div>
+  </div>
+  <div class="admgrid">
+    <div class="aside">
+      <div style="font-size:10px;color:var(--t3);letter-spacing:2px;font-family:'JetBrains Mono',monospace;margin-bottom:10px;padding:0 4px">NAVIGATION</div>
+      <div class="asi on">📊 نظرة عامة</div>
+      <div class="asi">📝 المصطلحات</div>
+      <div class="asi">👥 المستخدمون</div>
+      <div class="asi">🔍 البحثات</div>
+      <div class="asi">💬 محادثات AI</div>
+      <div style="height:1px;background:var(--b1);margin:12px 0"></div>
+      <div style="font-size:10px;color:var(--t3);letter-spacing:2px;font-family:'JetBrains Mono',monospace;margin-bottom:10px;padding:0 4px">SYSTEM</div>
+      <div class="asi">🔐 الصلاحيات</div>
+      <div class="asi">📋 السجلات</div>
+      <div class="asi">⚙️ الإعدادات</div>
+    </div>
+    <div>
+      <div class="a4">
+        <div class="as"><div class="as-n" style="color:var(--cyan)">1,247</div><div class="as-l">إجمالي المصطلحات</div><div class="as-ch" style="color:var(--green)">▲ +48 هذا الشهر</div></div>
+        <div class="as"><div class="as-n" style="color:var(--green)">8,934</div><div class="as-l">زوار اليوم</div><div class="as-ch" style="color:var(--green)">▲ +12.4%</div></div>
+        <div class="as"><div class="as-n" style="color:var(--p2)">3,421</div><div class="as-l">محادثات AI</div><div class="as-ch" style="color:var(--green)">▲ +34%</div></div>
+        <div class="as"><div class="as-n" style="color:var(--yellow)">24,810</div><div class="as-l">بحث إجمالي</div><div class="as-ch" style="color:var(--red)">▼ -2.1%</div></div>
+      </div>
+      <div class="chart-box">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">نشاط الزوار — آخر ١٤ يوماً</div>
+        <div style="font-size:12px;color:var(--t2)">عدد الزيارات اليومية</div>
+        <div class="bars" id="abars"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px">
+          <span style="font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace">منذ ١٤ يوم</span>
+          <span style="font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace">اليوم</span>
+        </div>
+      </div>
+      <div class="top-box">
+        <div style="font-size:14px;font-weight:600;margin-bottom:14px">أكثر المصطلحات بحثاً</div>
+        <div id="toplist"></div>
+      </div>
+      <div class="fbox" id="addForm">
+        <div style="font-size:16px;font-weight:700;font-family:'Cairo',sans-serif;margin-bottom:18px">+ إضافة مصطلح جديد</div>
+        <div class="fgrid">
+          <div class="ff"><label class="flbl">اسم المصطلح (عربي)</label><input class="finp" placeholder="مثال: جدار الحماية"></div>
+          <div class="ff"><label class="flbl">English Name</label><input class="finp" dir="ltr" placeholder="e.g. Firewall"></div>
+          <div class="ff"><label class="flbl">الاختصار</label><input class="finp" dir="ltr" placeholder="FW"></div>
+          <div class="ff"><label class="flbl">التصنيف</label>
+            <select class="finp"><option>SOC</option><option>GRC</option><option>Malware</option><option>IAM</option><option>Network</option><option>Cloud</option><option>Cryptography</option></select>
+          </div>
+          <div class="ff"><label class="flbl">المستوى</label>
+            <select class="finp"><option>مبتدئ</option><option>متوسط</option><option>متقدم</option><option>خبير</option></select>
+          </div>
+          <div class="ff"><label class="flbl">الحالة</label>
+            <select class="finp"><option>منشور</option><option>مسودة</option><option>مراجعة</option></select>
+          </div>
+          <div class="ff full"><label class="flbl">التعريف المبسط</label><textarea class="finp fta" placeholder="شرح مبسط يناسب المبتدئين..."></textarea></div>
+          <div class="ff full"><label class="flbl">التعريف التقني</label><textarea class="finp fta" placeholder="التعريف التقني التفصيلي..."></textarea></div>
+          <div class="ff full"><label class="flbl">مثال عملي</label><textarea class="finp" style="min-height:60px" placeholder="سيناريو أو مثال من الواقع..."></textarea></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+          <button class="btn btn-s">حفظ كمسودة</button>
+          <button class="sub-btn" onclick="alert('✓ تم إضافة المصطلح بنجاح!')">نشر المصطلح</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── DATA — Security+ Complete Database (110+ Terms) ──
+const TD=[
+{id:'soar',ar:'أتمتة الاستجابة الأمنية',en:'Security Orchestration Automation Response',ab:'SOAR',cat:'SOC',tc:'soc',lv:3,df:'منصة تدمج أدوات الأمن وتؤتمت الاستجابة للحوادث لتقليل وقت الاستجابة وتخفيف الضغط.',dft:'Orchestration يدمج الأدوات، Automation ينفذ المهام. يُقلل MTTR من ساعات لدقائق. يعمل مع SIEM.',ex:'SOAR يكتشف phishing → يحذف البريد → يعزل الجهاز → يفتح تذكرة تلقائياً في ثوانٍ.',rel:['SIEM','Incident Response','Playbook','Automation','MTTR']},
+{id:'radius',ar:'بروتوكول التحقق عن بعد',en:'Remote Authentication Dial-In User Service',ab:'RADIUS',cat:'IAM',tc:'iam',lv:2,df:'بروتوكول AAA يوفر إدارة مركزية للمصادقة والتفويض والمحاسبة لوصول الشبكة.',dft:'يعمل UDP 1812/1813. يتحقق من الهوية مقابل Active Directory. يُستخدم مع 802.1X وVPN.',ex:'VPN Client يُرسل بيانات المستخدم لـ RADIUS الذي يتحقق من Active Directory ويُجيب Accept/Reject.',rel:['TACACS+','802.1X','AAA','LDAP','Active Directory']},
+{id:'tacacs',ar:'بروتوكول TACACS+',en:'Terminal Access Controller Access-Control System Plus',ab:'TACACS+',cat:'IAM',tc:'iam',lv:2,df:'بروتوكول AAA يستخدم لإدارة وصول المسؤولين لأجهزة الشبكة ويفصل المصادقة عن التفويض.',dft:'يعمل TCP 49. يشفر الحزمة كاملاً بخلاف RADIUS. يسجل كل أوامر CLI. مثالي لـ Cisco.',ex:'مهندس شبكات يسجل دخوله لـ Cisco router عبر TACACS+ فتُسجَّل كل الأوامر للمراجعة.',rel:['RADIUS','AAA','Cisco','Network Access Control','Audit']},
+{id:'phishing',ar:'التصيد الاحتيالي',en:'Phishing',ab:'PHI',cat:'Malware',tc:'mal',lv:1,df:'هجوم هندسة اجتماعية يستخدم رسائل مزيفة لسرقة بيانات الاعتماد أو تثبيت برامج خبيثة.',dft:'يستخدم Spoofing وروابط مزيفة. أنواع: Spear Phishing، Whaling، Vishing، Smishing، BEC.',ex:'موظف يستلم بريداً يبدو من البنك يطلب تحديث بياناته فيُدخل بيانات بطاقته في موقع مزيف.',rel:['Spear Phishing','Vishing','Smishing','Social Engineering','BEC']},
+{id:'spearphish',ar:'التصيد الموجه',en:'Spear Phishing',ab:'SPH',cat:'Malware',tc:'mal',lv:2,df:'نوع متقدم من التصيد يستهدف فرداً بعينه باستخدام معلومات شخصية مخصصة.',dft:'يعتمد على OSINT لجمع معلومات الضحية. أكثر خطورة من Phishing العشوائي.',ex:'مهاجم يرسل لمحاسب بريداً يبدو من مديره يطلب تحويل مبلغ عاجل لحساب معين.',rel:['Phishing','Whaling','BEC','OSINT','Social Engineering']},
+{id:'whaling',ar:'تصيد الحيتان',en:'Whaling',ab:'WHL',cat:'Malware',tc:'mal',lv:2,df:'هجوم تصيد يستهدف كبار المسؤولين التنفيذيين مثل CEO وCFO.',dft:'يحاكي اتصالات رسمية حقيقية. يستخدم BEC لتحويل أموال أو الحصول على معلومات سرية.',ex:'CEO يستلم بريداً يبدو من محاميه يطلب بيانات سرية لصفقة مالية عاجلة.',rel:['Spear Phishing','BEC','Social Engineering','CEO Fraud']},
+{id:'vishing',ar:'التصيد الصوتي',en:'Vishing',ab:'VSH',cat:'Malware',tc:'mal',lv:1,df:'هجوم تصيد يستخدم المكالمات الصوتية لخداع الضحايا للكشف عن معلومات حساسة.',dft:'يستخدم Caller ID Spoofing. يعتمد على الضغط النفسي وانتحال هوية البنك أو الدعم الفني.',ex:'شخص يتلقى مكالمة من البنك يُبلغه باختراق حسابه ويطلب رقم بطاقته للتحقق.',rel:['Phishing','Smishing','Social Engineering','Spoofing']},
+{id:'smishing',ar:'التصيد عبر الرسائل',en:'Smishing',ab:'SMI',cat:'Malware',tc:'mal',lv:1,df:'هجوم تصيد يستخدم الرسائل النصية SMS لخداع الضحايا.',dft:'يرسل روابط خبيثة عبر SMS. يبدو أكثر مصداقية من البريد الإلكتروني لدى كثير من المستخدمين.',ex:'رسالة تبدو من شركة شحن تطلب دفع رسوم مع رابط موقع مزيف.',rel:['Phishing','Vishing','Social Engineering','Mobile Security']},
+{id:'socialeng',ar:'الهندسة الاجتماعية',en:'Social Engineering',ab:'SE',cat:'Malware',tc:'mal',lv:1,df:'تقنيات نفسية لخداع البشر للقيام بأفعال أو الكشف عن معلومات.',dft:'مبادئه: Authority, Urgency, Scarcity, Social Proof. يستهدف الحلقة البشرية الأضعف دائماً.',ex:'شخص ينتحل هوية تقني IT ويقنع موظفاً بإعطائه كلمة مروره لإصلاح مشكلة عاجلة.',rel:['Phishing','Pretexting','Tailgating','Baiting','Impersonation']},
+{id:'pretexting',ar:'انتحال السيناريو',en:'Pretexting',ab:'PTX',cat:'Malware',tc:'mal',lv:2,df:'إنشاء سيناريو مزيف لاستدراج الضحية لتقديم معلومات أو القيام بأفعال.',dft:'المهاجم يبني هوية وقصة كاملة كموظف جديد أو مراجع حسابات ليبدو شرعياً.',ex:'مهاجم يتصل بـ HR منتحلاً هوية موظف جديد يطلب بيانات المرتب.',rel:['Social Engineering','Impersonation','Vishing']},
+{id:'tailgating',ar:'التسلل خلف الشخص',en:'Tailgating',ab:'TLG',cat:'Malware',tc:'mal',lv:1,df:'اختراق مادي يتبع فيه المهاجم شخصاً مصرحاً له عبر باب آمن دون إظهار هوية.',dft:'يستغل السلوك الاجتماعي الإنساني. يمنعه: Security Awareness وMantraps.',ex:'مهاجم يحمل صناديق كثيرة فيفتح له موظف لطيف الباب الآمن دون التحقق من هويته.',rel:['Physical Security','Social Engineering','Access Control','Mantrap']},
+{id:'baiting',ar:'الإيقاع بالطعم',en:'Baiting',ab:'BAT',cat:'Malware',tc:'mal',lv:1,df:'هجوم يترك فيه المهاجم USB مصاباً في مكان عام ليتقاطه الضحية.',dft:'يعتمد على فضول الإنسان. USB مصاب بـ malware يُوضع في موقف السيارات.',ex:'موظف يجد USB موسوم بـ رواتب 2025 في المصعد فيوصله بجهازه ليُصاب بـ keylogger.',rel:['Social Engineering','Malware','USB Attack']},
+{id:'ransomware',ar:'برامج الفدية',en:'Ransomware',ab:'RW',cat:'Malware',tc:'mal',lv:1,df:'برمجية خبيثة تشفّر ملفات الضحية وتطالب بفدية مالية مقابل مفتاح فك التشفير.',dft:'Double Extortion: تشفير + تهديد نشر البيانات. RaaS: Ransomware as a Service.',ex:'WannaCry 2017 استغل EternalBlue وأصاب 200,000 جهاز في 150 دولة خلال أيام.',rel:['Malware','C2','RaaS','Backup','Incident Response']},
+{id:'trojan',ar:'حصان طروادة',en:'Trojan Horse',ab:'TRJ',cat:'Malware',tc:'mal',lv:1,df:'برنامج يبدو شرعياً لكنه يحتوي على كود خبيث يُنفَّذ عند تشغيله.',dft:'لا يتكاثر ذاتياً. يفتح Backdoor أو يسرق بيانات. RAT هو نوع متقدم منه.',ex:'تطبيق ألعاب مقرصن يحتوي على RAT يمنح المهاجم التحكم الكامل بالجهاز.',rel:['Malware','RAT','Backdoor','Rootkit','Keylogger']},
+{id:'rootkit',ar:'طقم الجذر',en:'Rootkit',ab:'RK',cat:'Malware',tc:'mal',lv:3,df:'برمجية خبيثة تختبئ عميقاً في نظام التشغيل وتخفي وجودها من أدوات الكشف.',dft:'أنواع: User-mode، Kernel-mode (أخطر)، Bootkit (في MBR). يتطلب إزالته إعادة تثبيت OS.',ex:'مهاجم يثبت kernel rootkit يخفي العمليات الخبيثة حتى من antivirus.',rel:['Malware','Bootkit','Persistence','APT']},
+{id:'keylogger',ar:'مسجل لوحة المفاتيح',en:'Keylogger',ab:'KL',cat:'Malware',tc:'mal',lv:1,df:'برنامج أو جهاز يسجل كل ضغطة على لوحة المفاتيح لالتقاط كلمات المرور.',dft:'Software (برنامج خبيث) أو Hardware (جهاز صغير). يرسل البيانات لـ C2.',ex:'موظف بنك يثبت مهاجم عليه software keylogger فيلتقط بيانات دخول العملاء.',rel:['Malware','Spyware','RAT','Credential Theft']},
+{id:'spyware',ar:'برنامج التجسس',en:'Spyware',ab:'SPY',cat:'Malware',tc:'mal',lv:1,df:'برمجية خبيثة تجمع معلومات عن المستخدم وترسلها للمهاجم دون علمه.',dft:'يجمع: كلمات مرور، تاريخ تصفح، لقطات شاشة، ميكروفون، كاميرا.',ex:'تطبيق مجاني لتحسين الأداء يجمع بيانات التصفح ويبيعها لشركات إعلانية سراً.',rel:['Malware','Adware','Keylogger','RAT']},
+{id:'botnet',ar:'شبكة الروبوتات',en:'Botnet',ab:'BOT',cat:'Malware',tc:'mal',lv:2,df:'شبكة من الأجهزة المصابة يتحكم فيها مهاجم عبر C2 لتنفيذ هجمات منسقة.',dft:'تُستخدم لـ: DDoS، Spam، تعدين عملات، Credential Stuffing. أشهرها: Mirai, Emotet.',ex:'مليون جهاز منزلي مصاب يشن هجوم DDoS يشل موقع شركة كبرى.',rel:['C2','DDoS','Malware','Zombie']},
+{id:'worm',ar:'الدودة الإلكترونية',en:'Worm',ab:'WRM',cat:'Malware',tc:'mal',lv:1,df:'برنامج خبيث يتكاثر ذاتياً وينتشر تلقائياً عبر الشبكات دون تدخل المستخدم.',dft:'يستغل ثغرات OS. WannaCry استخدم EternalBlue في SMB للانتشار تلقائياً.',ex:'دودة تستغل ثغرة في Windows وتنتشر لكل جهاز على الشبكة في دقائق.',rel:['Malware','Exploit','Vulnerability','EternalBlue']},
+{id:'apt',ar:'التهديد المتقدم المستمر',en:'Advanced Persistent Threat',ab:'APT',cat:'Malware',tc:'mal',lv:3,df:'هجوم سيبراني متطور يستهدف مؤسسة بعينها لفترة طويلة بهدف سرقة البيانات.',dft:'Kill Chain: Recon→Weaponize→Deliver→Exploit→Install→C2→Act. مجموعات: APT28, APT41.',ex:'مجموعة APT تخترق وزارة وتبقى كامنة 14 شهراً لسرقة وثائق سرية.',rel:['C2','Kill Chain','Lateral Movement','Persistence']},
+{id:'logic_bomb',ar:'القنبلة المنطقية',en:'Logic Bomb',ab:'LB',cat:'Malware',tc:'mal',lv:2,df:'كود خبيث مخفي في برنامج شرعي يُفعَّل عند تحقق شرط معين.',dft:'شائع في Insider Threat. مبرمج يضع كوداً يحذف قاعدة البيانات عند طرده.',ex:'موظف مطرود يكتشف أنه زرع كوداً يحذف ملفات قسمه في ذكرى طرده.',rel:['Malware','Insider Threat','Trojan']},
+{id:'fileless',ar:'البرمجيات بلا ملف',en:'Fileless Malware',ab:'FLM',cat:'Malware',tc:'mal',lv:3,df:'نوع متقدم يعمل في الذاكرة RAM فقط دون كتابة ملفات على القرص لتجنب الكشف.',dft:'يستغل أدوات شرعية: PowerShell, WMI. يصعب اكتشافه بـ antivirus التقليدي.',ex:'مهاجم يشغل PowerShell مشفراً في الذاكرة يحمّل payload مباشرة من الإنترنت.',rel:['Malware','PowerShell','Memory Forensics','EDR']},
+{id:'sqli',ar:'حقن SQL',en:'SQL Injection',ab:'SQLi',cat:'Malware',tc:'mal',lv:2,df:'هجوم يحقن فيه المهاجم أوامر SQL خبيثة للتلاعب بقاعدة البيانات.',dft:"أنواع: In-band، Blind، Out-of-band. الحماية: Prepared Statements، Input Validation، WAF.",ex:"إدخال ' OR '1'='1 يتجاوز المصادقة ويمنح وصولاً كاملاً.",rel:['OWASP','XSS','WAF','Input Validation']},
+{id:'xss',ar:'البرمجة عبر الموقع',en:'Cross-Site Scripting',ab:'XSS',cat:'Malware',tc:'mal',lv:2,df:'هجوم يحقن فيه المهاجم سكريبت خبيث في صفحة ويب يُنفَّذ في متصفح الضحايا.',dft:'أنواع: Stored (دائم)، Reflected، DOM-based. يسرق Cookies وSession tokens.',ex:'مهاجم ينشر تعليقاً يحتوي على script يسرق cookies زوار الصفحة.',rel:['OWASP','SQL Injection','CSRF','CSP']},
+{id:'csrf',ar:'تزوير الطلب عبر الموقع',en:'Cross-Site Request Forgery',ab:'CSRF',cat:'Malware',tc:'mal',lv:2,df:'هجوم يخدع الضحية المسجلة دخولها لتنفيذ طلبات غير مصرح بها.',dft:'يستغل ثقة الخادم. الحماية: CSRF Tokens, SameSite Cookies.',ex:'مستخدم مسجل في بنكه يزور موقعاً خبيثاً يرسل طلب تحويل مالي تلقائياً.',rel:['XSS','OWASP','Session Management']},
+{id:'mitm',ar:'هجوم الوسيط',en:'Man-in-the-Middle',ab:'MitM',cat:'Malware',tc:'mal',lv:2,df:'هجوم يتموضع فيه المهاجم بين طرفي الاتصال يستمع ويتلاعب بالبيانات.',dft:'تقنيات: ARP Spoofing, DNS Spoofing, SSL Stripping, Evil Twin Wi-Fi.',ex:'مهاجم في مقهى يُنشئ شبكة Wi-Fi مزيفة فيلتقط بيانات الضحايا المتصلين.',rel:['ARP Spoofing','SSL Stripping','Evil Twin','TLS']},
+{id:'ddos',ar:'الحرمان الموزع من الخدمة',en:'DDoS Attack',ab:'DDoS',cat:'Malware',tc:'mal',lv:1,df:'هجوم من آلاف أو ملايين الأجهزة لجعل خدمة غير متاحة.',dft:'أنواع: Volumetric، Protocol، Application Layer. حماية: CDN, Rate Limiting, Anti-DDoS.',ex:'Botnet من مليون جهاز IoT يشن هجوم 1 Tbps يشل مزود DNS.',rel:['DoS','Botnet','Amplification','CDN']},
+{id:'arp_spoof',ar:'انتحال ARP',en:'ARP Spoofing',ab:'ARP-S',cat:'Malware',tc:'mal',lv:2,df:'هجوم يرسل فيه المهاجم رسائل ARP مزيفة ليربط MAC جهازه بعنوان IP جهاز آخر.',dft:'يُمكّن من MitM داخل LAN. الحماية: Dynamic ARP Inspection, VLAN Segmentation.',ex:'مهاجم على شبكة الشركة يعترض كل حركة بين الضحية والـ gateway.',rel:['MitM','LAN','Dynamic ARP Inspection','VLAN']},
+{id:'dns_spoof',ar:'انتحال DNS',en:'DNS Spoofing',ab:'DNS-S',cat:'Malware',tc:'mal',lv:2,df:'هجوم يُزوّر سجلات DNS لتوجيه المستخدمين لمواقع خبيثة.',dft:'الحماية: DNSSEC يضيف توقيعاً رقمياً للسجلات. HTTPS يكشف Spoofing.',ex:'مهاجم يُسمم DNS resolver فيوجه مستخدميه لموقع بنك مزيف.',rel:['DNS','MitM','DNSSEC','Pharming']},
+{id:'supply_chain',ar:'هجوم سلسلة التوريد',en:'Supply Chain Attack',ab:'SCA',cat:'Malware',tc:'mal',lv:3,df:'هجوم يستهدف مورداً أقل أماناً للوصول للهدف الأصلي الأكثر حماية.',dft:'SolarWinds 2020: حُقن malware في تحديث البرنامج أصاب 18,000 مؤسسة.',ex:'مهاجم يخترق شركة برمجيات صغيرة ويزرع backdoor في تحديث تثبته 500 شركة.',rel:['Third Party Risk','SolarWinds','Software Integrity']},
+{id:'insider',ar:'التهديد الداخلي',en:'Insider Threat',ab:'IT',cat:'Malware',tc:'mal',lv:2,df:'تهديد يصدر من داخل المؤسسة: موظف حالي أو سابق يسيء استخدام صلاحياته.',dft:'أنواع: Malicious (متعمد)، Negligent (إهمال)، Compromised (حساب مخترق).',ex:'موظف قبل مغادرته ينسخ قاعدة عملاء الشركة بأكملها لبيعها للمنافسين.',rel:['DLP','UEBA','PAM','Logic Bomb']},
+{id:'firewall',ar:'جدار الحماية',en:'Firewall',ab:'FW',cat:'Network',tc:'net',lv:1,df:'جهاز أو برنامج يراقب ويتحكم في حركة مرور الشبكة بناءً على قواعد أمنية.',dft:'Packet Filter (L3/4)، Stateful (يتتبع حالة الاتصال)، NGFW (يفحص L7).',ex:'NGFW يحجب حركة Tor حتى على port 443 بالتعرف على نمط البروتوكول.',rel:['IDS','IPS','WAF','NGFW','ACL']},
+{id:'ngfw',ar:'جدار الحماية الجيل التالي',en:'Next-Generation Firewall',ab:'NGFW',cat:'Network',tc:'net',lv:2,df:'جدار حماية متقدم يجمع DPI مع وعي بالتطبيقات والمستخدمين.',dft:'ميزات: Application Awareness, User Identity, IPS مدمج, SSL Inspection, URL Filtering.',ex:'NGFW يسمح بـ Facebook للتسويق لكن يحجب رفع الملفات منه للموظفين.',rel:['Firewall','IPS','UTM','DPI']},
+{id:'ids',ar:'نظام كشف التسلل',en:'Intrusion Detection System',ab:'IDS',cat:'Network',tc:'net',lv:2,df:'نظام يراقب حركة الشبكة للكشف عن محاولات الاختراق وإصدار تنبيهات.',dft:'NIDS (شبكي) و HIDS (جهاز). طرق الكشف: Signature-based و Anomaly-based.',ex:'IDS يرصد port scan ويُنبه فريق SOC لكنه لا يوقف الاتصال تلقائياً.',rel:['IPS','SIEM','Firewall','Snort']},
+{id:'ips',ar:'نظام منع التسلل',en:'Intrusion Prevention System',ab:'IPS',cat:'Network',tc:'net',lv:2,df:'تطور لـ IDS يضاف له القدرة على منع الهجمات تلقائياً في الوقت الفعلي.',dft:'يعمل Inline في مسار الشبكة. يتخذ إجراءات: Drop packet, Reset connection, Block IP.',ex:'IPS يكتشف ويحجب SQL Injection قبل وصوله للخادم خلال milliseconds.',rel:['IDS','Firewall','WAF','SIEM']},
+{id:'vpn',ar:'الشبكة الافتراضية الخاصة',en:'Virtual Private Network',ab:'VPN',cat:'Network',tc:'net',lv:1,df:'تقنية تنشئ نفقاً مشفراً آمناً عبر الإنترنت العام للاتصال بشبكة خاصة.',dft:'بروتوكولات: IPSec, SSL/TLS, OpenVPN, WireGuard. Site-to-Site و Remote Access.',ex:'موظف يعمل من المنزل يتصل بـ VPN للشركة ليصل لموارد الشبكة الداخلية بأمان.',rel:['IPSec','SSL','TLS','ZTNA']},
+{id:'waf',ar:'جدار حماية تطبيقات الويب',en:'Web Application Firewall',ab:'WAF',cat:'Network',tc:'net',lv:2,df:'جدار حماية متخصص يحمي تطبيقات الويب من الهجمات الشائعة.',dft:'يحلل HTTP/HTTPS ويطبق قواعد OWASP Top 10. أوضاع: Detection, Prevention, Learning.',ex:'WAF يحجب طلباً يحتوي على SQL Injection قبل وصوله للخادم.',rel:['IPS','Firewall','OWASP','SQL Injection']},
+{id:'honeypot',ar:'وعاء العسل',en:'Honeypot',ab:'HP',cat:'SOC',tc:'soc',lv:2,df:'نظام مُصمَّم عمداً ليبدو ثميناً لاصطياد المهاجمين ودراسة أساليبهم.',dft:'Low Interaction (محاكاة)، High Interaction (نظام حقيقي). Honeynet = شبكة honeypots.',ex:'أمن يُنشئ خادم قاعدة بيانات مزيف فيكتشف مهاجماً داخلياً يحاول الوصول.',rel:['Deception Technology','Threat Intelligence','IDS']},
+{id:'nac',ar:'التحكم في وصول الشبكة',en:'Network Access Control',ab:'NAC',cat:'Network',tc:'net',lv:2,df:'حل يتحكم في الأجهزة المسموح لها بالاتصال بالشبكة بناءً على سياسات الأمن.',dft:'يتحقق من: Antivirus محدث، Patch مثبت. يعزل الأجهزة غير الممتثلة في VLAN منفصل.',ex:'جهاز شخصي يريد الاتصال بشبكة الشركة يُوجَّه لـ Guest VLAN بوصول محدود.',rel:['802.1X','RADIUS','VLAN','Zero Trust']},
+{id:'dmz',ar:'المنطقة منزوعة السلاح',en:'Demilitarized Zone',ab:'DMZ',cat:'Network',tc:'net',lv:2,df:'شبكة فرعية معزولة تحتوي على خدمات يمكن الوصول إليها من الإنترنت.',dft:'تقع بين جدارين ناريين. تعزل الخدمات العامة عن الشبكة الداخلية.',ex:'خوادم الويب والبريد في DMZ للوصول العام مع حماية الشبكة الداخلية.',rel:['Firewall','Network Segmentation','Proxy']},
+{id:'iam',ar:'إدارة الهوية والوصول',en:'Identity and Access Management',ab:'IAM',cat:'IAM',tc:'iam',lv:2,df:'إطار عمل لإدارة الهويات الرقمية وضبط صلاحيات الوصول إلى الموارد.',dft:'مكونات: Directory Services, Authentication, Authorization, Provisioning, Audit.',ex:'نظام IAM ينشئ حساب موظف جديد بالصلاحيات المناسبة لدوره ويُلغيه فور مغادرته.',rel:['SSO','MFA','RBAC','PAM']},
+{id:'mfa',ar:'المصادقة متعددة العوامل',en:'Multi-Factor Authentication',ab:'MFA',cat:'IAM',tc:'iam',lv:1,df:'مصادقة تتطلب دليلين أو أكثر من فئات مختلفة لإثبات الهوية.',dft:'فئات: Something you Know، Something you Have، Something you Are (بيومترية).',ex:'تسجيل دخول يتطلب: كلمة مرور + رمز من Authenticator + بصمة الإصبع.',rel:['2FA','TOTP','FIDO2','Biometrics']},
+{id:'sso',ar:'تسجيل الدخول الموحد',en:'Single Sign-On',ab:'SSO',cat:'IAM',tc:'iam',lv:1,df:'آلية تتيح للمستخدم الدخول لتطبيقات متعددة بجلسة مصادقة واحدة.',dft:'بروتوكولات: SAML 2.0، OAuth 2.0، OpenID Connect (OIDC).',ex:'موظف يسجل دخوله مرة واحدة فيصل لـ Salesforce, Slack, GitHub تلقائياً.',rel:['SAML','OAuth','OIDC','Federation']},
+{id:'saml',ar:'لغة ترميز التأكيد الأمني',en:'SAML',ab:'SAML',cat:'IAM',tc:'iam',lv:3,df:'معيار XML لتبادل بيانات المصادقة والتفويض بين Identity Provider وService Provider.',dft:'IdP يصدر SAML Assertion بعد المصادقة. SP يقبله لمنح الوصول. يُستخدم في SSO Enterprise.',ex:'موظف يُوجَّه لـ Okta للمصادقة فيُصدر SAML Assertion للوصول لـ Salesforce.',rel:['SSO','OAuth','OIDC','IdP']},
+{id:'oauth',ar:'تفويض الوصول المفتوح',en:'OAuth 2.0',ab:'OAuth',cat:'IAM',tc:'iam',lv:2,df:'إطار تفويض يسمح لتطبيق بالوصول لموارد المستخدم دون مشاركة كلمة المرور.',dft:'Flows: Authorization Code, Client Credentials, Device Code. يصدر Access Tokens.',ex:'تسجيل الدخول بـ Google يستخدم OAuth لمنح التطبيق وصولاً محدوداً لبياناتك.',rel:['OIDC','SAML','SSO','JWT']},
+{id:'rbac',ar:'التحكم في الوصول بالدور',en:'Role-Based Access Control',ab:'RBAC',cat:'IAM',tc:'iam',lv:1,df:'نموذج يمنح صلاحيات الوصول بناءً على دور المستخدم في المؤسسة.',dft:'المستخدمون يُعيَّنون لأدوار، الأدوار تحمل صلاحيات. يُبسّط إدارة الوصول.',ex:'كل محللي SOC يقرؤون السجلات، مدير SOC يعتمد الإجراءات، Admin يعدل الإعدادات.',rel:['ABAC','IAM','Least Privilege','Separation of Duties']},
+{id:'abac',ar:'التحكم في الوصول بالسمات',en:'Attribute-Based Access Control',ab:'ABAC',cat:'IAM',tc:'iam',lv:3,df:'نموذج وصول مرن يمنح الصلاحيات بناءً على سمات المستخدم والموارد والبيئة.',dft:'سمات: Department, Clearance Level, Time of Day, Location. أكثر دقة من RBAC.',ex:'وصول لملفات سرية يتطلب: Security Department + TopSecret Clearance + Business Hours + HQ.',rel:['RBAC','Zero Trust','IAM']},
+{id:'kerberos',ar:'بروتوكول كيربيروس',en:'Kerberos',ab:'KRB',cat:'IAM',tc:'iam',lv:3,df:'بروتوكول مصادقة شبكي يستخدم تذاكر مشفرة لإثبات الهوية دون إرسال كلمة المرور.',dft:'KDC يصدر TGT ثم Service Tickets. يستخدمه Windows Active Directory.',ex:'موظف يسجل دخوله للـ Domain فيحصل على TGT يستخدمه للوصول للخدمات.',rel:['Active Directory','KDC','Pass-the-Ticket','Golden Ticket']},
+{id:'ldap',ar:'بروتوكول الوصول للدليل',en:'LDAP',ab:'LDAP',cat:'IAM',tc:'iam',lv:2,df:'بروتوكول للوصول وإدارة خدمات الدليل مثل Active Directory.',dft:'TCP/UDP 389 أو 636 (LDAPS مشفر). يستخدم DN للتعريف. يدعم CRUD.',ex:'تطبيق HR يستعلم LDAP لجلب معلومات الموظف من Active Directory.',rel:['Active Directory','RADIUS','SSO','Kerberos']},
+{id:'pam',ar:'إدارة الوصول المميز',en:'Privileged Access Management',ab:'PAM',cat:'IAM',tc:'iam',lv:2,df:'نظام يتحكم ويراقب ويسجل وصول الحسابات ذات الصلاحيات العالية.',dft:'مكونات: Password Vault، Session Recording، Just-in-Time Access، Least Privilege.',ex:'مدير قاعدة بيانات يحصل على كلمة مرور مؤقتة لساعة فقط وتُسجَّل جلسته.',rel:['IAM','Zero Trust','Least Privilege','CyberArk']},
+{id:'least_priv',ar:'مبدأ الامتياز الأدنى',en:'Least Privilege',ab:'PoLP',cat:'IAM',tc:'iam',lv:1,df:'مبدأ يقضي بمنح الصلاحيات الدنيا الضرورية فقط لأداء المهام.',dft:'يُقلل سطح الهجوم ويحد من أضرار الاختراق أو Insider Threat.',ex:'محلل SOC يرى السجلات فقط ولا يملك صلاحية تعديلها.',rel:['IAM','RBAC','PAM','Zero Trust']},
+{id:'sod',ar:'الفصل بين المهام',en:'Separation of Duties',ab:'SoD',cat:'GRC',tc:'grc',lv:2,df:'مبدأ يوزع المهام الحساسة بين أكثر من شخص لمنع الاحتيال.',dft:'من يطلب الدفع لا يعتمده، من يكتب الشيك لا يوقعه.',ex:'في بنك: موظف يُنشئ الحساب، مدير يعتمده، محاسب يراجع المعاملات.',rel:['Dual Control','Least Privilege','Audit']},
+{id:'grc',ar:'الحوكمة والمخاطر والامتثال',en:'Governance Risk Compliance',ab:'GRC',cat:'GRC',tc:'grc',lv:2,df:'إطار عمل متكامل يجمع الحوكمة وإدارة المخاطر والامتثال للوائح.',dft:'يوائم استراتيجية الأمن مع أهداف العمل ويضمن الامتثال.',ex:'فريق GRC يُجري تقييم مخاطر ربع سنوي ويُعد تقارير لمجلس الإدارة.',rel:['Risk Management','ISO 27001','NIST','Compliance']},
+{id:'iso27001',ar:'معيار ISO 27001',en:'ISO/IEC 27001',ab:'ISO27001',cat:'GRC',tc:'grc',lv:2,df:'معيار دولي لإنشاء نظام إدارة أمن المعلومات ISMS.',dft:'114 ضابط في 14 مجالاً. يتطلب: تقييم مخاطر، SOA، مراجعة سنوية، تدقيق خارجي.',ex:'شركة سحابية تحصل على ISO 27001 لتثبت لعملائها مستوى أمنها.',rel:['NIST','GRC','Audit','Risk Management']},
+{id:'nist_csf',ar:'إطار NIST للأمن السيبراني',en:'NIST Cybersecurity Framework',ab:'NIST CSF',cat:'GRC',tc:'grc',lv:2,df:'إطار أمريكي يوفر منهجية لإدارة مخاطر الأمن السيبراني.',dft:'5 وظائف: Identify → Protect → Detect → Respond → Recover. Maturity Levels 1-4.',ex:'شركة تستخدم NIST CSF لتقييم ثغراتها وتضع خارطة طريق للتحسين.',rel:['ISO 27001','CIS Controls','GRC','Risk Management']},
+{id:'pcidss',ar:'معيار PCI-DSS',en:'PCI Data Security Standard',ab:'PCI-DSS',cat:'GRC',tc:'grc',lv:2,df:'معيار أمني إلزامي لحماية بيانات بطاقات الدفع.',dft:'12 متطلباً تشمل: Firewall، تشفير البيانات، Antivirus، Pentest دوري.',ex:'متجر إلكتروني يجب الامتثال لـ PCI-DSS وإلا يخسر حق قبول بطاقات الدفع.',rel:['Compliance','Encryption','Tokenization','GRC']},
+{id:'gdpr',ar:'لائحة حماية البيانات الأوروبية',en:'GDPR',ab:'GDPR',cat:'GRC',tc:'grc',lv:2,df:'لائحة أوروبية صارمة لحماية خصوصية البيانات الشخصية.',dft:'حقوق: Right to Access, Right to Erasure, Right to Portability. غرامات 4% من الإيرادات.',ex:'شركة تتعرض لخرق بيانات يجب إبلاغ الجهات خلال 72 ساعة وإلا غرامة ضخمة.',rel:['Privacy','DLP','Data Classification','CCPA']},
+{id:'risk_mgmt',ar:'إدارة المخاطر',en:'Risk Management',ab:'RM',cat:'GRC',tc:'grc',lv:2,df:'عملية تحديد وتحليل وتقييم ومعالجة المخاطر الأمنية.',dft:'خيارات: Avoid، Transfer (تأمين)، Mitigate، Accept. Risk = Likelihood × Impact.',ex:'مخاطرة عالية الاحتمال وعالية الأثر تُعالج فوراً، المنخفضة قد تُقبل.',rel:['BIA','Risk Appetite','Residual Risk','ISO 27001']},
+{id:'bia',ar:'تحليل تأثير الأعمال',en:'Business Impact Analysis',ab:'BIA',cat:'GRC',tc:'grc',lv:2,df:'تقييم يحدد تأثير توقف العمليات الحيوية وأولويات الاسترداد.',dft:'يُحدد: RTO، RPO، MTTR، Critical Assets. أساس خطط BCP وDRP.',ex:'بنك يحدد استعادة نظام الدفع خلال ساعة (RTO) مع فقد بيانات 15 دقيقة (RPO).',rel:['DRP','BCP','RTO','RPO']},
+{id:'rto',ar:'وقت الاسترداد المستهدف',en:'Recovery Time Objective',ab:'RTO',cat:'GRC',tc:'grc',lv:2,df:'الحد الأقصى الزمني المقبول لاستعادة نظام بعد توقفه.',dft:'كلما كان RTO أقصر كلما احتاج بنية تحتية أكثر تكلفة كـ Hot Site.',ex:'RTO=4 ساعات يعني يجب استعادة الخدمة خلال 4 ساعات من الكارثة.',rel:['RPO','BIA','DRP','BCP']},
+{id:'rpo',ar:'نقطة الاسترداد المستهدفة',en:'Recovery Point Objective',ab:'RPO',cat:'GRC',tc:'grc',lv:2,df:'الحد الأقصى المقبول لكمية البيانات التي يمكن فقدانها في الكارثة.',dft:'RPO يحدد تكرار النسخ الاحتياطية. RPO=1 ساعة = نسخ احتياطية كل ساعة.',ex:'RPO=15 دقيقة يعني النسخ الاحتياطية تعمل كل 15 دقيقة.',rel:['RTO','BIA','Backup','DRP']},
+{id:'bcp',ar:'خطة استمرارية الأعمال',en:'Business Continuity Plan',ab:'BCP',cat:'GRC',tc:'grc',lv:2,df:'خطة شاملة لضمان استمرار العمليات خلال الأزمات وبعدها.',dft:'تشمل: BIA، DRP، استراتيجيات الموظفين، بدائل المواقع، اتصالات الطوارئ.',ex:'بنك ينقل العمليات لموقع بديل ويتصل بالعملاء عند كارثة.',rel:['DRP','BIA','RTO','RPO']},
+{id:'drp',ar:'خطة التعافي من الكوارث',en:'Disaster Recovery Plan',ab:'DRP',cat:'GRC',tc:'grc',lv:2,df:'خطة لاستعادة أنظمة تقنية المعلومات بعد كارثة.',dft:'Hot Site (جاهز فوراً)، Warm Site (يحتاج ساعات)، Cold Site (يحتاج أياماً).',ex:'عند حريق في مركز البيانات، يُفعَّل Hot Site تلقائياً خلال دقائق.',rel:['BCP','BIA','RTO','RPO']},
+{id:'siem',ar:'نظام إدارة الأحداث الأمنية',en:'SIEM',ab:'SIEM',cat:'SOC',tc:'soc',lv:2,df:'منصة تجمع وتحلل بيانات الأحداث الأمنية للكشف عن التهديدات.',dft:'يجمع logs من FW, IDS, Endpoints, Servers. يطبق Correlation Rules.',ex:'SIEM يربط بين تنبيه IDS + دخول فاشل + حركة غريبة لاكتشاف APT.',rel:['SOC','SOAR','Splunk','IBM QRadar']},
+{id:'edr',ar:'الكشف والاستجابة على الأجهزة',en:'Endpoint Detection and Response',ab:'EDR',cat:'SOC',tc:'soc',lv:2,df:'حل يراقب الأجهزة للكشف عن التهديدات المتقدمة والاستجابة لها.',dft:'يجمع: Process monitoring, Registry changes, Network connections. يُحلل بـ AI.',ex:'EDR يكتشف PowerShell يحاول تنزيل payload ويعزل الجهاز قبل تنفيذه.',rel:['XDR','MDR','SIEM','Antivirus']},
+{id:'xdr',ar:'الكشف والاستجابة الموسعة',en:'Extended Detection and Response',ab:'XDR',cat:'SOC',tc:'soc',lv:3,df:'يوحد بيانات الأمن من طبقات متعددة في منصة واحدة.',dft:'يكسر صوامع البيانات. يوفر رؤية موحدة ويسرّع الكشف عبر Correlation متقدم.',ex:'يربط XDR بين تنبيه email مشبوه + حركة شبكة غريبة + عملية غير عادية.',rel:['EDR','SIEM','SOAR','MDR']},
+{id:'soc_ops',ar:'مركز عمليات الأمن',en:'Security Operations Center',ab:'SOC',cat:'SOC',tc:'soc',lv:1,df:'فريق متخصص لمراقبة وتحليل والاستجابة للحوادث الأمنية على مدار الساعة.',dft:'Tier 1 (مراقبة)، Tier 2 (تحقيق)، Tier 3 (صيد التهديدات).',ex:'محلل SOC يتلقى تنبيهاً الساعة 3 صباحاً ويعزل الجهاز المصاب فوراً.',rel:['SIEM','SOAR','Incident Response','Threat Hunting']},
+{id:'threat_hunt',ar:'مطاردة التهديدات',en:'Threat Hunting',ab:'TH',cat:'SOC',tc:'soc',lv:3,df:'بحث استباقي عن التهديدات المخفية التي لم تكتشفها الأدوات الآلية.',dft:'يعتمد على Hypothesis-driven وبيانات CTI وتحليل TTPs من MITRE ATT&CK.',ex:'محلل يبحث عن Lateral Movement مشبوه في السجلات بعد قراءة تقرير APT جديد.',rel:['SIEM','EDR','MITRE ATT&CK','IOC']},
+{id:'ir',ar:'الاستجابة للحوادث',en:'Incident Response',ab:'IR',cat:'SOC',tc:'soc',lv:2,df:'عملية منهجية للتعامل مع الحوادث الأمنية.',dft:'مراحل PICERL: Preparation, Identification, Containment, Eradication, Recovery, Lessons.',ex:'عند اختراق: عزل الأنظمة، حفظ الأدلة، إبلاغ الإدارة، استعادة الخدمة.',rel:['SOAR','SOC','Digital Forensics','CSIRT']},
+{id:'dfir',ar:'الجنائيات الرقمية',en:'Digital Forensics',ab:'DFIR',cat:'SOC',tc:'soc',lv:3,df:'علم جمع وحفظ وتحليل الأدلة الرقمية لإثبات ما حدث في الحادثة.',dft:'يتبع Chain of Custody. يحلل: Memory dumps, Disk images, Network captures.',ex:'محقق يستخرج تسلسل الأحداث الكامل من هجوم ransomware.',rel:['Incident Response','IOC','Timeline Analysis','Chain of Custody']},
+{id:'mitre',ar:'إطار MITRE ATT&CK',en:'MITRE ATT&CK',ab:'ATT&CK',cat:'SOC',tc:'soc',lv:2,df:'قاعدة معرفية تصنف تكتيكات وتقنيات المهاجمين المبنية على هجمات حقيقية.',dft:'14 Tactic و200+ Technique. يُحدَّث دورياً. منصات: Enterprise, Mobile, ICS.',ex:'Blue Team يخطط تغطيته الدفاعية بناءً على ATT&CK لضمان أفضل كشف.',rel:['Kill Chain','TTPs','Threat Hunting','Red Team']},
+{id:'kill_chain',ar:'سلسلة الهجوم',en:'Cyber Kill Chain',ab:'CKC',cat:'SOC',tc:'soc',lv:2,df:'نموذج يصف مراحل الهجوم السيبراني من الاستطلاع حتى تحقيق الهدف.',dft:'7 مراحل: Recon → Weaponize → Deliver → Exploit → Install → C2 → Actions.',ex:'الكشف في مرحلة Delivery يمنع الهجوم من الوصول لمرحلة C2.',rel:['MITRE ATT&CK','APT','Threat Hunting','Defense in Depth']},
+{id:'ioc',ar:'مؤشرات الاختراق',en:'Indicators of Compromise',ab:'IoC',cat:'SOC',tc:'soc',lv:2,df:'آثار وأدلة رقمية تشير لوجود اختراق أو نشاط خبيث.',dft:'أنواع: IP خبيثة, Domain, File Hash, Registry Key, URL. تُشارك بـ STIX/TAXII.',ex:'Hash ملف ransomware يُضاف كـ IoC لـ EDR فيكتشفه على أي جهاز فوراً.',rel:['Threat Intelligence','STIX','SIEM','EDR']},
+{id:'cti',ar:'استخبارات التهديدات',en:'Cyber Threat Intelligence',ab:'CTI',cat:'SOC',tc:'soc',lv:2,df:'معلومات محللة عن التهديدات الحالية لاتخاذ قرارات أمنية مستنيرة.',dft:'مستويات: Strategic (للإدارة)، Operational (للـ SOC)، Tactical (IoCs). مصادر: OSINT, ISACs.',ex:'CTI feed يوزع IoCs لـ SIEM وFirewall لحجب مصادر هجمات ransomware.',rel:['IoC','STIX/TAXII','MISP','SOC']},
+{id:'encryption',ar:'التشفير',en:'Encryption',ab:'ENC',cat:'Crypto',tc:'crd',lv:1,df:'تحويل البيانات لصيغة غير مقروءة باستخدام خوارزمية ومفتاح.',dft:'Symmetric (AES - مفتاح واحد)، Asymmetric (RSA, ECC - مفتاحان). يحمي في النقل والتخزين.',ex:'قرص صلب مشفر بـ AES-256: حتى لو سُرق الجهاز البيانات غير مقروءة.',rel:['AES','RSA','PKI','TLS']},
+{id:'aes',ar:'معيار التشفير المتقدم',en:'Advanced Encryption Standard',ab:'AES',cat:'Crypto',tc:'crd',lv:2,df:'معيار تشفير متماثل الأكثر استخداماً عالمياً بمفاتيح 128/192/256 بت.',dft:'Block cipher 128-bit. أوضاع: ECB (ضعيف)، CBC، CTR، GCM (يشفر ويتحقق).',ex:'TLS 1.3 يستخدم AES-256-GCM. WPA2 يستخدم AES-CCMP لتشفير Wi-Fi.',rel:['DES','3DES','Symmetric Encryption','GCM']},
+{id:'rsa',ar:'خوارزمية RSA',en:'RSA Encryption',ab:'RSA',cat:'Crypto',tc:'crd',lv:2,df:'خوارزمية تشفير غير متماثل تعتمد على صعوبة تحليل الأعداد الكبيرة.',dft:'مفتاح عام للتشفير، خاص للفك والتوقيع. حجم مفتاح 2048-bit كحد أدنى.',ex:'HTTPS يستخدم RSA لتبادل مفتاح AES الجلسي ثم AES للتشفير الفعلي.',rel:['AES','ECC','PKI','Digital Signature']},
+{id:'hashing',ar:'التجزئة',en:'Hashing',ab:'HASH',cat:'Crypto',tc:'crd',lv:1,df:'تحويل البيانات لقيمة ثابتة الطول لا يمكن عكسها، للتحقق من السلامة.',dft:'MD5 (128-bit, ضعيف)، SHA-256 (آمن)، bcrypt (لكلمات المرور). Collision Resistance.',ex:'كلمات المرور تُخزَّن كـ hash، فحتى DBA لا يعرف كلمة مرور أي مستخدم.',rel:['Salt','SHA-256','MD5','Digital Signature']},
+{id:'salt',ar:'الملح التشفيري',en:'Cryptographic Salt',ab:'SALT',cat:'Crypto',tc:'crd',lv:2,df:'قيمة عشوائية تُضاف لكلمة المرور قبل تجزئتها لمنع Rainbow Table.',dft:'كل مستخدم له Salt فريد. كلمتا مرور متطابقتان تنتجان hash مختلفَين.',ex:'كلمة مرور 123456 + salt عشوائي = hash فريد. Rainbow Tables تصبح عديمة الفائدة.',rel:['Hashing','bcrypt','Password Storage','Rainbow Table']},
+{id:'pki',ar:'البنية التحتية للمفاتيح العامة',en:'Public Key Infrastructure',ab:'PKI',cat:'Crypto',tc:'crd',lv:3,df:'إطار يدير الشهادات الرقمية والمفاتيح لضمان هوية الأطراف.',dft:'مكونات: CA (Root & Intermediate)، RA، CRL/OCSP، شهادات X.509.',ex:'موقع HTTPS يعرض شهادة موقعة من CA موثوقة يتحقق منها المتصفح.',rel:['SSL/TLS','CA','CRL','OCSP','Digital Signature']},
+{id:'tls',ar:'أمن طبقة النقل',en:'Transport Layer Security',ab:'TLS',cat:'Crypto',tc:'crd',lv:1,df:'بروتوكول تشفير يؤمن الاتصالات عبر الإنترنت ويحمي من التنصت.',dft:'TLS Handshake: يتفق على خوارزميات ويتبادل مفاتيح. TLS 1.3 أسرع وأأمن.',ex:'HTTPS = HTTP + TLS. القفل الأخضر في المتصفح يعني اتصال TLS محمي.',rel:['SSL','PKI','HTTPS','Certificate']},
+{id:'dsig',ar:'التوقيع الرقمي',en:'Digital Signature',ab:'DS',cat:'Crypto',tc:'crd',lv:2,df:'آلية تُثبت هوية المُرسِل وتضمن سلامة البيانات ومنع الإنكار.',dft:'المُرسِل يُجزّئ الرسالة ويُشفّر بمفتاحه الخاص. المستلم يُفك بالمفتاح العام ويقارن.',ex:'رسالة بريد إلكتروني موقعة رقمياً تُثبت أنها من المُرسِل ولم تُعدَّل.',rel:['PKI','Non-repudiation','Hash','RSA']},
+{id:'ipsec',ar:'أمن بروتوكول الإنترنت',en:'IPSec',ab:'IPSec',cat:'Network',tc:'net',lv:2,df:'مجموعة بروتوكولات تُؤمّن الاتصالات على مستوى IP بالتشفير والمصادقة.',dft:'Transport Mode (يشفر البيانات)، Tunnel Mode (يشفر الحزمة كاملاً). يستخدم AH و ESP.',ex:'اتصال VPN بين مكاتب الشركة يستخدم IPSec Tunnel Mode لتشفير كل الحركة.',rel:['VPN','AH','ESP','IKE']},
+{id:'zerotrust',ar:'معمارية الثقة الصفرية',en:'Zero Trust Architecture',ab:'ZTA',cat:'SOC',tc:'soc',lv:3,df:'نموذج لا يثق بأي كيان داخل أو خارج الشبكة مع التحقق المستمر.',dft:'مبادئ: Verify Explicitly, Use Least Privilege, Assume Breach. يُطبق على كل الطبقات.',ex:'حتى مدير الشبكة يحتاج MFA وتحقق من جهازه في كل دخول لأنظمة حساسة.',rel:['ZTNA','IAM','MFA','Microsegmentation']},
+{id:'ztna',ar:'الوصول بلا ثقة',en:'Zero Trust Network Access',ab:'ZTNA',cat:'Network',tc:'net',lv:3,df:'نهج يستبدل VPN بمنح وصول دقيق للتطبيقات بناءً على الهوية والسياق.',dft:'يُطبق Least Privilege على مستوى التطبيق. يتحقق من: Identity + Device + Location.',ex:'موظف يصل لتطبيق HR فقط دون رؤية باقي الشبكة الداخلية.',rel:['Zero Trust','SASE','VPN','IAM']},
+{id:'defense_depth',ar:'الدفاع بالعمق',en:'Defense in Depth',ab:'DiD',cat:'SOC',tc:'soc',lv:2,df:'استراتيجية تضع طبقات متعددة من الضوابط بحيث إذا فشلت طبقة تعمل أخرى.',dft:'طبقات: Physical → Network → Endpoint → Application → Data.',ex:'مهاجم يخترق Firewall لكن يصطدم بـ IPS ثم NAC ثم MFA ثم DLP ثم Encryption.',rel:['Layered Security','Firewall','IPS','Encryption']},
+{id:'dlp',ar:'منع تسرب البيانات',en:'Data Loss Prevention',ab:'DLP',cat:'GRC',tc:'grc',lv:2,df:'أدوات وسياسات لمنع مغادرة البيانات الحساسة بشكل غير مصرح به.',dft:'يراقب: Data in Motion (شبكة)، Data in Use (أجهزة)، Data at Rest (تخزين).',ex:'DLP يمنع إرسال ملف يحتوي على أرقام SSN عبر البريد الخارجي.',rel:['Data Classification','CASB','IRM','Encryption']},
+{id:'cloud_sec',ar:'أمن السحابة',en:'Cloud Security',ab:'CS',cat:'Cloud',tc:'cld',lv:2,df:'مجموعة ضوابط وأدوات لحماية البيانات والتطبيقات في البيئات السحابية.',dft:'Shared Responsibility: CSP مسؤول عن أمن السحابة، العميل عن أمن ما فيها.',ex:'AWS يحمي الأجهزة الفيزيائية، العميل مسؤول عن تشفير بياناته وإعداد IAM.',rel:['CSPM','CASB','Shared Responsibility','AWS']},
+{id:'cspm',ar:'إدارة وضع أمن السحابة',en:'Cloud Security Posture Management',ab:'CSPM',cat:'Cloud',tc:'cld',lv:3,df:'أدوات تراقب وتصحح تلقائياً إعدادات الأمن في البيئات السحابية.',dft:'تفحص إعدادات AWS/Azure/GCP مقابل CIS Benchmarks. تكتشف buckets مكشوفة.',ex:'CSPM يكتشف S3 bucket عام الوصول يحتوي على بيانات حساسة ويُنبه الفريق.',rel:['CWPP','CIEM','Cloud Security','DevSecOps']},
+{id:'casb',ar:'وسيط أمن السحابة',en:'Cloud Access Security Broker',ab:'CASB',cat:'Cloud',tc:'cld',lv:3,df:'حل وسيط بين المستخدمين وتطبيقات السحابة لتطبيق سياسات الأمن.',dft:'يوفر رؤية Shadow IT، يطبق DLP، يكتشف سلوكاً شاذاً.',ex:'CASB يكتشف موظفاً يرفع ملفات سرية لـ Dropbox الشخصي ويحجبه.',rel:['DLP','SASE','Cloud Security','Shadow IT']},
+{id:'sase',ar:'حافة الخدمة الآمنة',en:'Secure Access Service Edge',ab:'SASE',cat:'Cloud',tc:'cld',lv:3,df:'إطار معماري يدمج أمن الشبكة وخدمات WAN في خدمة سحابية موحدة.',dft:'يجمع: ZTNA, CASB, SWG, NGFW, SD-WAN في منصة سحابية. مفهوم Gartner 2019.',ex:'شركة تستبدل VPN التقليدي بـ SASE لتأمين العمال عن بُعد بكفاءة أعلى.',rel:['Zero Trust','ZTNA','CASB','SD-WAN']},
+{id:'pentest',ar:'اختبار الاختراق',en:'Penetration Testing',ab:'Pentest',cat:'SOC',tc:'soc',lv:2,df:'محاكاة هجمات سيبرانية مخولة لاكتشاف نقاط الضعف قبل المهاجمين.',dft:'أنواع: Black Box، White Box، Gray Box. مراحل: Recon→Scan→Exploit→Post-exploit→Report.',ex:'شركة تستأجر فريقاً لاختبار موقعها وتكتشف SQL Injection قبل الإطلاق.',rel:['Red Team','Vulnerability Assessment','Bug Bounty','OWASP']},
+{id:'redteam',ar:'الفريق الأحمر',en:'Red Team',ab:'RT',cat:'SOC',tc:'soc',lv:3,df:'فريق يحاكي هجمات خصوم حقيقيين لاختبار قدرات الكشف والاستجابة.',dft:'يختلف عن Pentest: يشمل Social Engineering، Physical Intrusion، C2 كاملة.',ex:'Red Team يخترق عبر phishing، يصل للخادم، Blue Team لا تكتشفه لأسابيع.',rel:['Blue Team','Purple Team','Pentest','MITRE ATT&CK']},
+{id:'blueteam',ar:'الفريق الأزرق',en:'Blue Team',ab:'BT',cat:'SOC',tc:'soc',lv:2,df:'فريق الدفاع الذي يراقب ويحمي ويستجيب للتهديدات.',dft:'يستخدم SIEM, EDR, IPS, Threat Intelligence. يكتشف هجمات Red Team.',ex:'Blue Team يلاحظ DNS queries غير عادية تشير لـ C2 ويعزل الجهاز.',rel:['Red Team','Purple Team','SOC','SIEM']},
+{id:'purpleteam',ar:'الفريق البنفسجي',en:'Purple Team',ab:'PRT',cat:'SOC',tc:'soc',lv:2,df:'تعاون مدمج بين Red وBlue Teams يتشاركان المعرفة فورياً.',dft:'يُحسّن فجوة المعرفة. Red يشرح التقنيات، Blue يُطبّق الكشف فوراً.',ex:'Red ينفذ Lateral Movement فيما Blue يضبط قواعد SIEM للكشف آنياً.',rel:['Red Team','Blue Team','SOC','MITRE ATT&CK']},
+{id:'osint',ar:'استخبارات المصادر المفتوحة',en:'OSINT',ab:'OSINT',cat:'SOC',tc:'soc',lv:1,df:'جمع وتحليل معلومات من مصادر متاحة للعموم لأغراض استخباراتية.',dft:'أدوات: Maltego, Shodan, theHarvester, WHOIS, Google Dorks, LinkedIn.',ex:'Pentester يجمع قائمة موظفين من LinkedIn وبنية IP من Shodan.',rel:['Recon','Threat Intelligence','Social Engineering','Shodan']},
+{id:'sast',ar:'اختبار الأمن الساكن',en:'SAST',ab:'SAST',cat:'SOC',tc:'soc',lv:2,df:'تحليل الكود المصدري للكشف عن ثغرات دون تشغيله.',dft:'يُدمج في CI/CD. يكتشف: SQL Injection, Buffer Overflow, Hardcoded credentials.',ex:'مطور يدفع كوداً لـ Git فيُشغَّل SAST ويكتشف API key مدمجاً.',rel:['DAST','Secure SDLC','DevSecOps']},
+{id:'dast',ar:'اختبار الأمن الديناميكي',en:'DAST',ab:'DAST',cat:'SOC',tc:'soc',lv:2,df:'اختبار التطبيق أثناء تشغيله للكشف عن ثغرات في وقت التنفيذ.',dft:'يُرسل طلبات خبيثة ويحلل الاستجابات. أدوات: OWASP ZAP, Burp Suite.',ex:'DAST يُرسل XSS payloads لكل حقول النموذج ويكتشف حقل غير محمي.',rel:['SAST','Penetration Testing','WAF','OWASP']},
+{id:'vuln_mgmt',ar:'إدارة الثغرات',en:'Vulnerability Management',ab:'VM',cat:'Malware',tc:'mal',lv:2,df:'عملية دورية لاكتشاف وتصنيف وإصلاح نقاط الضعف في الأنظمة.',dft:'مسح دوري بـ Nessus/Qualys، تصنيف CVSS، ترتيب الإصلاح، تطبيق الرقع، التحقق.',ex:'فحص أسبوعي يكتشف CVE بدرجة 9.8، يُصعَّد للإصلاح الفوري خلال 24 ساعة.',rel:['CVE','CVSS','Patch Management','Pentest']},
+{id:'cve',ar:'الثغرات المعروفة',en:'Common Vulnerabilities and Exposures',ab:'CVE',cat:'Malware',tc:'mal',lv:1,df:'قاعدة بيانات موحدة لتسمية الثغرات الأمنية بمعرفات فريدة.',dft:'تنسيق: CVE-YEAR-NUMBER. تديره MITRE. CVSS يُعطي درجة خطورة 0-10.',ex:'CVE-2021-44228 (Log4Shell) درجتها 10/10 أثرت على ملايين التطبيقات.',rel:['CVSS','NVD','Vulnerability Management','Exploit']},
+{id:'cvss',ar:'نظام تسجيل الثغرات',en:'CVSS',ab:'CVSS',cat:'Malware',tc:'mal',lv:2,df:'معيار لتقييم خطورة الثغرات بدرجة رقمية من 0 إلى 10.',dft:'يحسب: Attack Vector, Complexity, Privileges, CIA Impact. 9.0-10=Critical.',ex:'CVE بـ CVSS 9.8 تُعالج فوراً، 3.1 تُجدول في التحديث القادم.',rel:['CVE','NVD','Vulnerability Management']},
+{id:'ueba',ar:'تحليل سلوك المستخدم',en:'User and Entity Behavior Analytics',ab:'UEBA',cat:'SOC',tc:'soc',lv:3,df:'تقنية تستخدم الذكاء الاصطناعي لاكتشاف سلوك المستخدمين الشاذ.',dft:'يحلل: أوقات الدخول، كميات البيانات، التطبيقات، المواقع. يكتشف Insider Threats.',ex:'UEBA يكتشف مدير قاعدة بيانات يحمّل 10GB في الساعة 2 صباحاً.',rel:['SIEM','Insider Threat','ML','SOC','DLP']},
+{id:'phys_sec',ar:'الأمن الفيزيائي',en:'Physical Security',ab:'PS',cat:'GRC',tc:'grc',lv:1,df:'ضوابط تحمي الأصول المادية والأشخاص من الوصول غير المصرح به.',dft:'ضوابط: Mantrap، Biometrics, CCTV, Guards, Cable Locks, Faraday Cage.',ex:'مركز بيانات يتطلب: بطاقة RFID + بصمة إصبع + رقم سري للدخول.',rel:['Mantrap','Biometrics','CCTV','Social Engineering']},
+{id:'devsecops',ar:'DevSecOps',en:'Development Security Operations',ab:'DevSecOps',cat:'SOC',tc:'soc',lv:2,df:'نهج يدمج ممارسات الأمن في كل مراحل تطوير البرمجيات.',dft:'Shift Left Security: اكتشاف الثغرات مبكراً. يدمج SAST/DAST في CI/CD Pipeline.',ex:'كل Pull Request يمر بـ SAST + Dependency Check + Secret Scanner.',rel:['SAST','DAST','CI/CD','Secure SDLC']},
+{id:'threat_model',ar:'نمذجة التهديدات',en:'Threat Modeling',ab:'TM',cat:'SOC',tc:'soc',lv:3,df:'تحليل منهجي لتحديد التهديدات ونقاط الضعف في مرحلة التصميم.',dft:'STRIDE: Spoofing, Tampering, Repudiation, Info Disclosure, DoS, Elevation of Privilege.',ex:'فريق تطوير يُجري Threat Modeling قبل بناء API ويكتشف ثغرات في المصادقة.',rel:['STRIDE','Risk Management','Secure SDLC']},
+{id:'seg_net',ar:'تجزئة الشبكة',en:'Network Segmentation',ab:'NS',cat:'Network',tc:'net',lv:2,df:'تقسيم الشبكة لأجزاء معزولة لتحديد انتشار الهجمات.',dft:'Microsegmentation: يعزل كل جهاز أو تطبيق. يمنع Lateral Movement.',ex:'خوادم الإنتاج في VLAN منفصل عن أجهزة الموظفين.',rel:['VLAN','Firewall','DMZ','Zero Trust']},
+];
+
+
+// Build SUGG from TD automatically
+const SUGG=TD.map(t=>({ab:t.ab,nm:t.en,dc:t.df.slice(0,55),tc:t.tc,id:t.id}));
+
+const BC={soc:'b-soc',iam:'b-iam',mal:'b-mal',net:'b-net',cld:'b-cld',grc:'b-grc'};
+const bc=(tc)=>BC[tc]||'b-soc';
+
+// ── NAV ──
+function go(p){
+  document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  window.scrollTo(0,0);
+}
+function na(el){
+  document.querySelectorAll('.nl').forEach(x=>x.classList.remove('act'));
+  el.classList.add('act');
+}
+function gofilt(f){
+  go('terms');na(document.querySelectorAll('.nl')[1]);
+  const chips=document.querySelectorAll('#fchips .chip');
+  const map=['all','SOC','GRC','Malware','IAM','Network','Cloud','Crypto'];
+  const idx=map.indexOf(f);
+  chips.forEach(c=>c.classList.remove('on'));
+  if(idx>=0)chips[idx].classList.add('on');
+  renderTerms(f);
+}
+
+// ── COUNTERS ──
+function count(id,t){
+  let n=0;const s=Math.ceil(t/55);
+  const i=setInterval(()=>{n=Math.min(n+s,t);
+    document.getElementById(id).textContent=n.toLocaleString('ar');
+    if(n>=t)clearInterval(i);},22);
+}
+count('s1',1247);count('s2',22);count('s3',14830);count('s4',8934);
+
+// ── SEARCH ──
+function lsearch(q){
+  const box=document.getElementById('sdrop');
+  if(!q.trim()){box.classList.remove('show');return;}
+  const r=SUGG.filter(s=>
+    s.ab.toLowerCase().includes(q.toLowerCase())||
+    s.nm.toLowerCase().includes(q.toLowerCase())||
+    s.dc.includes(q));
+  if(!r.length){box.classList.remove('show');return;}
+  box.innerHTML=r.slice(0,5).map(s=>`
+    <div class="sd-item" onclick="detail('${s.id}')">
+      <span class="badge ${bc(s.tc)}">${s.ab}</span>
+      <div>
+        <div style="font-size:14px;font-weight:500">${s.nm}</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">${s.dc}</div>
+      </div>
+    </div>`).join('');
+  box.classList.add('show');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.srch-wrap'))
+    document.getElementById('sdrop').classList.remove('show');
+});
+
+// ── HOME GRID ──
+function renderHome(){
+  document.getElementById('hgrid').innerHTML=TD.slice(0,6).map(t=>`
+    <div class="tc" onclick="detail('${t.id}')">
+      <div class="tc-hd">
+        <div class="tc-nm">${t.ar}</div>
+        <span class="badge ${bc(t.tc)}">${t.ab}</span>
+      </div>
+      <div class="tc-df">${t.df.slice(0,110)}...</div>
+      <div class="tc-ft">
+        <span class="badge ${bc(t.tc)}">${t.cat}</span>
+        <div class="lvl">${[1,2,3,4].map(i=>`<div class="ld" style="background:${i<=t.lv?'var(--cyan)':'var(--b2)'}"></div>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+renderHome();
+
+// ── TERMS LIST ──
+function renderTerms(f='all'){
+  const d=f==='all'?TD:TD.filter(t=>t.cat===f||t.tc===f.toLowerCase());
+  document.getElementById('tcount').textContent=`عرض ${d.length} من ١٢٠٠`;
+  document.getElementById('tlist').innerHTML=d.map(t=>`
+    <div class="trow" onclick="detail('${t.id}')">
+      <div>
+        <div class="tr-ab">${t.ab}</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:3px;font-family:'JetBrains Mono',monospace">${t.cat}</div>
+      </div>
+      <div>
+        <div class="tr-nm">${t.ar}</div>
+        <div class="tr-df">${t.df.slice(0,110)}...</div>
+      </div>
+      <div class="tr-meta">
+        <span class="badge ${bc(t.tc)}">${t.cat}</span>
+        <div class="lvl">${[1,2,3,4].map(i=>`<div class="ld" style="background:${i<=t.lv?'var(--cyan)':'var(--b2)'}"></div>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+renderTerms();
+
+function filt(f,el){
+  document.querySelectorAll('#fchips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  renderTerms(f);
+}
+
+// ── DETAIL ──
+function detail(id){
+  const t=TD.find(x=>x.id===id)||TD[0];
+  document.getElementById('dbody').innerHTML=`
+    <div class="dhead">
+      <div class="d-ab">◈ ${t.ab} · ${t.cat}</div>
+      <div class="d-tt">${t.ar}</div>
+      <div class="d-en">${t.en}</div>
+      <div class="d-tags">
+        <span class="badge ${bc(t.tc)}">${t.cat}</span>
+        <span style="padding:3px 10px;border-radius:5px;font-size:11px;background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2);font-family:'JetBrains Mono',monospace">${['','مبتدئ','متوسط','متقدم','خبير'][t.lv]}</span>
+      </div>
+      <div class="d-acts">
+        <button class="d-btn" onclick="navigator.clipboard.writeText('${t.ar}: ${t.df}').then(()=>{this.textContent='✓ تم النسخ';this.style.color='var(--green)';setTimeout(()=>{this.textContent='📋 نسخ';this.style.color=''},2e3)})">📋 نسخ</button>
+        <button class="d-btn">🔖 حفظ</button>
+        <button class="d-btn" onclick="speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance('${t.ar}. ${t.df}'),{lang:'ar-SA'}))">🔊 استماع</button>
+        <button class="d-btn">↗ مشاركة</button>
+        <button class="d-btn" style="color:var(--cyan);border-color:rgba(0,212,255,.25)"
+          onclick="go('ai');na(document.querySelectorAll('.nl')[2]);setTimeout(()=>sq('اشرح مصطلح ${t.ar} بالتفصيل مع أمثلة'),300)">✦ اسأل AI</button>
+      </div>
+    </div>
+    <div class="dgrid">
+      <div>
+        <div class="dcard">
+          <div class="dc-t">التعريف المبسط</div>
+          <div class="def-s">${t.df}</div>
+          <div class="dc-t">التعريف التقني</div>
+          <div class="def-t">${t.dft}</div>
+        </div>
+        <div class="dcard">
+          <div class="dc-t">مثال عملي</div>
+          <div class="ex">
+            <div class="ex-l">◉ سيناريو من الواقع</div>
+            <div class="ex-t">${t.ex}</div>
+          </div>
+        </div>
+        <div class="dcard">
+          <div class="dc-t">ملاحظاتي</div>
+          <textarea class="notes" placeholder="أضف ملاحظاتك الخاصة هنا..."></textarea>
+        </div>
+      </div>
+      <div>
+        <div class="dcard">
+          <div class="dc-t">مستوى الصعوبة</div>
+          <div class="diff-bar">${[1,2,3,4].map(i=>`<div class="ds" style="background:${i<=t.lv?'var(--cyan)':'var(--b1)'}"></div>`).join('')}</div>
+          <div style="font-size:12px;color:var(--cyan);font-family:'JetBrains Mono',monospace">${['','مبتدئ ● ○ ○ ○','متوسط ● ● ○ ○','متقدم ● ● ● ○','خبير ● ● ● ●'][t.lv]}</div>
+        </div>
+        <div class="dcard">
+          <div class="dc-t">المصطلحات المرتبطة</div>
+          ${t.rel.map(r=>`<div class="rel-item"><span>${r}</span><span style="color:var(--t3);font-size:16px">←</span></div>`).join('')}
+        </div>
+        <div class="dcard">
+          <div class="dc-t">مساعد AI</div>
+          <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:12px">اسأل مساعد CyberBase الذكي لشرح أعمق مع أمثلة مخصصة</p>
+          <button class="sub-btn" style="width:100%;font-size:13px"
+            onclick="go('ai');na(document.querySelectorAll('.nl')[2]);setTimeout(()=>sq('اشرح لي ${t.ar} بأمثلة عملية وكيف يُستخدم في الواقع'),300)">✦ اسأل CyberBase AI</button>
+        </div>
+      </div>
+    </div>`;
+  go('detail');
+}
+
+// ── ADMIN CHART ──
+const bv=[420,680,510,730,620,890,750,940,810,1100,920,1250,1080,1340];
+const bmax=Math.max(...bv);
+document.getElementById('abars').innerHTML=bv.map((v,i)=>`
+  <div class="bar" data-v="${v.toLocaleString()}"
+    style="height:${Math.round(v/bmax*100)}%;opacity:${(0.35+0.65*(i/(bv.length-1))).toFixed(2)}"></div>`).join('');
+
+const tops=[
+  {nm:'Zero Trust',ct:4821,pt:96},{nm:'SIEM',ct:4210,pt:84},
+  {nm:'Ransomware',ct:3890,pt:78},{nm:'Pentest',ct:3120,pt:62},{nm:'MFA',ct:2940,pt:59}
+];
+document.getElementById('toplist').innerHTML=tops.map((t,i)=>`
+  <div class="toprow">
+    <div class="top-rk">${i+1}</div>
+    <div class="top-nm">${t.nm}</div>
+    <div class="top-bw"><div class="top-bf" style="width:${t.pt}%"></div></div>
+    <div class="top-ct">${t.ct.toLocaleString()}</div>
+  </div>`).join('');
+
+// ── AI CHAT ──
+const chatEl=document.getElementById('chat');
+let busy=false;
+
+function addMsg(role,txt){
+  const d=document.createElement('div');
+  d.className='msg '+role;
+  d.innerHTML=`<div class="av ${role}">${role==='ai'?'CY':'أ'}</div><div class="bub">${txt}</div>`;
+  chatEl.appendChild(d);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+function showTyping(){
+  const d=document.createElement('div');
+  d.className='msg ai';d.id='tymsg';
+  d.innerHTML=`<div class="av ai">CY</div><div class="bub"><div class="ty"><span></span><span></span><span></span></div></div>`;
+  chatEl.appendChild(d);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('cinp');
+  const m=inp.value.trim();
+  if(!m||busy)return;
+  inp.value='';inp.style.height='auto';
+  addMsg('u',m);
+  document.getElementById('pchips').style.display='none';
+  busy=true;showTyping();
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'user',content:m}]})
+    });
+    const data=await res.json();
+    document.getElementById('tymsg')?.remove();
+    const txt=data.content?.map(c=>c.text||'').join('')||'عذراً، حدث خطأ.';
+    addMsg('ai',txt
+      .replace(/\n/g,'<br>')
+      .replace(/◈/g,'<span style="color:var(--cyan);font-weight:600">◈</span>')
+      .replace(/▸/g,'<span style="color:var(--p2)">▸</span>'));
+  }catch(e){
+    document.getElementById('tymsg')?.remove();
+    addMsg('ai','⚠️ تعذّر الاتصال بخادم AI. تأكد من اتصالك بالإنترنت وحاول مجدداً.');
+  }
+  busy=false;
+}
+
+function sq(t){
+  document.getElementById('cinp').value=t;
+  sendMsg();
+}
+
+document.getElementById('cinp').addEventListener('input',function(){
+  this.style.height='auto';
+  this.style.height=Math.min(this.scrollHeight,120)+'px';
+});
+
+// ── PARTICLES ──
+(function(){
+  const c=document.getElementById('cv');
+  const ctx=c.getContext('2d');
+  let W,H,P=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  class Pt{
+    constructor(){
+      this.x=Math.random()*W;this.y=Math.random()*H;
+      this.vx=(Math.random()-.5)*.35;this.vy=(Math.random()-.5)*.35;
+      this.r=Math.random()*1.4+.4;
+      this.a=Math.random()*.35+.08;
+      this.col=Math.random()>.55?'0,212,255':'0,119,238';
+    }
+  }
+  for(let i=0;i<55;i++)P.push(new Pt());
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    P.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;
+      if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.col},${p.a})`;ctx.fill();
+    });
+    for(let i=0;i<P.length;i++)
+      for(let j=i+1;j<P.length;j++){
+        const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<115){
+          ctx.beginPath();
+          ctx.moveTo(P[i].x,P[i].y);ctx.lineTo(P[j].x,P[j].y);
+          ctx.strokeStyle=`rgba(0,212,255,${.06*(1-d/115)})`;
+          ctx.lineWidth=.5;ctx.stroke();
+        }
+      }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
